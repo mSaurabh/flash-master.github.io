@@ -176,6 +176,16 @@
                     </div>
                 </div>
 
+                <div id="timedQuizStart" class="quiz-container" style="display: none;">
+                    <div class="quiz-question">Ready for a timed challenge?</div>
+                    <p style="text-align: center; margin: 20px 0; color: rgba(228, 228, 231, 0.7);">
+                        You'll have <span id="timedQuizDuration">60</span> seconds to answer all questions.
+                    </p>
+                    <div class="controls">
+                        <button class="btn btn-next" onclick="startTimedQuiz()">🚀 Start Timed Quiz</button>
+                    </div>
+                </div>
+
                 <div class="quiz-container">
                     <div class="quiz-question" id="quizQuestion">Ready to test your knowledge?</div>
                     <div class="quiz-options" id="quizOptions"></div>
