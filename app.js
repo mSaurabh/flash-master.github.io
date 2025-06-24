@@ -59,7 +59,147 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Set up drag and drop
     setupDragAndDrop();
+    
+    // Set up all event listeners
+    setupEventListeners();
 });
+
+function setupEventListeners() {
+    // Navigation tabs
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            const tabName = this.getAttribute('data-tab');
+            switchTab(tabName, e);
+        });
+    });
+
+    // File upload
+    const fileInput = document.getElementById('fileInput');
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    
+    if (fileInput) {
+        fileInput.addEventListener('change', loadFlashcards);
+    }
+    
+    if (fileUploadArea) {
+        fileUploadArea.addEventListener('click', function() {
+            document.getElementById('fileInput').click();
+        });
+    }
+
+    // Study mode buttons
+    document.querySelectorAll('[data-mode]').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const mode = this.getAttribute('data-mode');
+            setStudyMode(mode, e);
+        });
+    });
+
+    // Flashcard interactions
+    const flashcard = document.getElementById('flashcard');
+    if (flashcard) {
+        flashcard.addEventListener('click', flipCard);
+    }
+
+    // Study control buttons
+    const correctBtn = document.getElementById('correctBtn');
+    const incorrectBtn = document.getElementById('incorrectBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const restartSessionBtn = document.getElementById('restartSessionBtn');
+
+    if (correctBtn) {
+        correctBtn.addEventListener('click', function() {
+            markAnswer(true);
+        });
+    }
+
+    if (incorrectBtn) {
+        incorrectBtn.addEventListener('click', function() {
+            markAnswer(false);
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', nextCard);
+    }
+
+    if (restartSessionBtn) {
+        restartSessionBtn.addEventListener('click', restartSession);
+    }
+
+    // Quiz mode buttons
+    document.querySelectorAll('[data-quiz-mode]').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const mode = this.getAttribute('data-quiz-mode');
+            setQuizMode(mode, e);
+        });
+    });
+
+    // Quiz control buttons
+    const startTimedQuizBtn = document.getElementById('startTimedQuizBtn');
+    const quizSubmitBtn = document.getElementById('quizSubmitBtn');
+    const quizNextBtn = document.getElementById('quizNextBtn');
+    const restartQuizBtn = document.getElementById('restartQuizBtn');
+    const downloadQuizResultsBtn = document.getElementById('downloadQuizResultsBtn');
+
+    if (startTimedQuizBtn) {
+        startTimedQuizBtn.addEventListener('click', startTimedQuiz);
+    }
+
+    if (quizSubmitBtn) {
+        quizSubmitBtn.addEventListener('click', submitQuizAnswer);
+    }
+
+    if (quizNextBtn) {
+        quizNextBtn.addEventListener('click', nextQuizQuestion);
+    }
+
+    if (restartQuizBtn) {
+        restartQuizBtn.addEventListener('click', restartQuiz);
+    }
+
+    if (downloadQuizResultsBtn) {
+        downloadQuizResultsBtn.addEventListener('click', downloadQuizResults);
+    }
+
+    // Progress buttons
+    const exportProgressBtn = document.getElementById('exportProgressBtn');
+    const importProgressBtn = document.getElementById('importProgressBtn');
+    const clearProgressBtn = document.getElementById('clearProgressBtn');
+    const progressImport = document.getElementById('progressImport');
+
+    if (exportProgressBtn) {
+        exportProgressBtn.addEventListener('click', exportProgress);
+    }
+
+    if (importProgressBtn) {
+        importProgressBtn.addEventListener('click', function() {
+            document.getElementById('progressImport').click();
+        });
+    }
+
+    if (clearProgressBtn) {
+        clearProgressBtn.addEventListener('click', clearProgress);
+    }
+
+    if (progressImport) {
+        progressImport.addEventListener('change', importProgress);
+    }
+
+    // Settings button
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    if (saveSettingsBtn) {
+        saveSettingsBtn.addEventListener('click', saveSettings);
+    }
+
+    // Tab switching buttons (for upload cards buttons)
+    document.querySelectorAll('[data-tab]:not(.nav-tab)').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const tabName = this.getAttribute('data-tab');
+            switchTab(tabName, e);
+        });
+    });
+}
 
 function setupDragAndDrop() {
     const uploadArea = document.querySelector('.file-upload');
@@ -621,7 +761,7 @@ function updateQuizQuestion() {
             option.setAttribute('data-index', index);
             option.style.pointerEvents = 'auto'; // Ensure it's clickable
             
-            // Add click event listener
+            // Add click event listener (CSP-compliant)
             option.addEventListener('click', function() {
                 selectQuizOption(index, this);
             });
