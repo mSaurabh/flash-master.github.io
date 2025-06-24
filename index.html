@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FlashMaster - Interactive Study Cards & Quizzes</title>
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    
     <!-- External Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     
     <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
@@ -22,11 +22,11 @@
         </div>
 
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('upload')">📁 Upload</button>
-            <button class="nav-tab" onclick="switchTab('study')">🎯 Study</button>
-            <button class="nav-tab" onclick="switchTab('quiz')">🧪 Quiz</button>
-            <button class="nav-tab" onclick="switchTab('progress')">📊 Analytics</button>
-            <button class="nav-tab" onclick="switchTab('settings')">⚙️ Settings</button>
+            <button class="nav-tab active" onclick="switchTab('upload', event)">📁 Upload</button>
+            <button class="nav-tab" onclick="switchTab('study', event)">🎯 Study</button>
+            <button class="nav-tab" onclick="switchTab('quiz', event)">🧪 Quiz</button>
+            <button class="nav-tab" onclick="switchTab('progress', event)">📊 Analytics</button>
+            <button class="nav-tab" onclick="switchTab('settings', event)">⚙️ Settings</button>
         </div>
 
         <!-- Upload Tab -->
@@ -130,7 +130,7 @@
             <div id="noCardsMessage" class="upload-section">
                 <h2>📚 No Flashcards Loaded</h2>
                 <p>Upload your JSON file to get started</p>
-                <button class="btn btn-next" onclick="switchTab('upload')">📁 Upload Cards</button>
+                <button class="btn btn-next" onclick="switchTab('upload', event)">📁 Upload Cards</button>
             </div>
         </div>
 
@@ -193,7 +193,7 @@
             <div id="noQuizMessage" class="upload-section">
                 <h2>🧪 Quiz Mode Unavailable</h2>
                 <p>Upload JSON with quiz choices to enable quiz mode</p>
-                <button class="btn btn-next" onclick="switchTab('upload')">📁 Upload Cards</button>
+                <button class="btn btn-next" onclick="switchTab('upload', event)">📁 Upload Cards</button>
             </div>
         </div>
 
@@ -271,7 +271,7 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
+    <!-- Scripts -->
     <script src="app.js"></script>
 </body>
 </html>
