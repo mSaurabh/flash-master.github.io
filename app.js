@@ -94,10 +94,27 @@ function setupDragAndDrop() {
 // Navigation and UI
 // ==========================================================================
 
-function switchTab(tabName) {
+function switchTab(tabName, event = null) {
     // Update nav tabs
     document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-    event.target.classList.add('active');
+    
+    // If called from an event, use event.target, otherwise find the tab by content
+    if (event && event.target) {
+        event.target.classList.add('active');
+    } else {
+        // Find the correct nav tab based on the tab name
+        const navTabs = document.querySelectorAll('.nav-tab');
+        navTabs.forEach(tab => {
+            const tabText = tab.textContent.toLowerCase();
+            if ((tabName === 'upload' && tabText.includes('upload')) ||
+                (tabName === 'study' && tabText.includes('study')) ||
+                (tabName === 'quiz' && tabText.includes('quiz')) ||
+                (tabName === 'progress' && tabText.includes('analytics')) ||
+                (tabName === 'settings' && tabText.includes('settings'))) {
+                tab.classList.add('active');
+            }
+        });
+    }
     
     // Update content
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
