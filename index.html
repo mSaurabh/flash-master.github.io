@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' https:;">
     <title>FlashMaster - Interactive Study Cards & Quizzes</title>
     
     <!-- External Dependencies -->
@@ -22,11 +23,11 @@
         </div>
 
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('upload', event)">📁 Upload</button>
-            <button class="nav-tab" onclick="switchTab('study', event)">🎯 Study</button>
-            <button class="nav-tab" onclick="switchTab('quiz', event)">🧪 Quiz</button>
-            <button class="nav-tab" onclick="switchTab('progress', event)">📊 Analytics</button>
-            <button class="nav-tab" onclick="switchTab('settings', event)">⚙️ Settings</button>
+            <button class="nav-tab active" data-tab="upload">📁 Upload</button>
+            <button class="nav-tab" data-tab="study">🎯 Study</button>
+            <button class="nav-tab" data-tab="quiz">🧪 Quiz</button>
+            <button class="nav-tab" data-tab="progress">📊 Analytics</button>
+            <button class="nav-tab" data-tab="settings">⚙️ Settings</button>
         </div>
 
         <!-- Upload Tab -->
@@ -35,13 +36,13 @@
                 <h2>📁 Upload Flashcard Set</h2>
                 <p>Import your JSON file to start learning</p>
                 
-                <div class="file-upload" onclick="document.getElementById('fileInput').click()">
+                <div class="file-upload" id="fileUploadArea">
                     <div style="font-size: 3em; margin-bottom: 16px;">📄</div>
                     <div style="font-size: 1.2em; margin-bottom: 12px;">Drop your JSON file here</div>
                     <div style="color: rgba(228, 228, 231, 0.6);">or click to browse</div>
                 </div>
                 
-                <input type="file" id="fileInput" class="file-input" accept=".json" onchange="loadFlashcards(event)">
+                <input type="file" id="fileInput" class="file-input" accept=".json">
                 
                 <div class="json-format">
                     <h3>📋 JSON Format Specification:</h3>
@@ -73,7 +74,7 @@
         <div id="study" class="tab-content">
             <div id="studyContent" style="display: none;">
                 <div class="mode-selector">
-                    <button class="mode-btn active" onclick="setStudyMode('flashcard', event)">💳 Flashcard Mode</button>
+                    <button class="mode-btn active" data-mode="flashcard">💳 Flashcard Mode</button>
                 </div>
 
                 <div class="stats">
@@ -103,7 +104,7 @@
                 </div>
 
                 <div class="flashcard-container">
-                    <div class="flashcard" id="flashcard" onclick="flipCard()">
+                    <div class="flashcard" id="flashcard">
                         <div class="card-face card-front" id="cardFront">
                             <div id="questionText">Ready to start learning?</div>
                             <div class="difficulty-indicator" id="difficultyIndicator"></div>
@@ -115,22 +116,22 @@
                 </div>
 
                 <div class="controls">
-                    <button class="btn btn-incorrect" onclick="markAnswer(false)" id="incorrectBtn" style="display: none;">❌ Incorrect</button>
-                    <button class="btn btn-correct" onclick="markAnswer(true)" id="correctBtn" style="display: none;">✅ Correct</button>
-                    <button class="btn btn-next" onclick="nextCard()" id="nextBtn">▶️ Start</button>
+                    <button class="btn btn-incorrect" id="incorrectBtn" style="display: none;">❌ Incorrect</button>
+                    <button class="btn btn-correct" id="correctBtn" style="display: none;">✅ Correct</button>
+                    <button class="btn btn-next" id="nextBtn">▶️ Start</button>
                 </div>
 
                 <div id="sessionComplete" style="display: none;" class="stats">
                     <h2>🎉 Session Complete!</h2>
                     <div id="finalResults"></div>
-                    <button class="btn btn-next" onclick="restartSession()">🔄 Study Again</button>
+                    <button class="btn btn-next" id="restartSessionBtn">🔄 Study Again</button>
                 </div>
             </div>
 
             <div id="noCardsMessage" class="upload-section">
                 <h2>📚 No Flashcards Loaded</h2>
                 <p>Upload your JSON file to get started</p>
-                <button class="btn btn-next" onclick="switchTab('upload', event)">📁 Upload Cards</button>
+                <button class="btn btn-next" data-tab="upload">📁 Upload Cards</button>
             </div>
         </div>
 
@@ -138,9 +139,9 @@
         <div id="quiz" class="tab-content">
             <div id="quizContent" style="display: none;">
                 <div class="mode-selector">
-                    <button class="mode-btn active" onclick="setQuizMode('single', event)">🎯 Single Choice</button>
-                    <button class="mode-btn" onclick="setQuizMode('multiple', event)">✅ Multiple Choice</button>
-                    <button class="mode-btn" onclick="setQuizMode('timed', event)">⏱️ Timed Quiz</button>
+                    <button class="mode-btn active" data-quiz-mode="single">🎯 Single Choice</button>
+                    <button class="mode-btn" data-quiz-mode="multiple">✅ Multiple Choice</button>
+                    <button class="mode-btn" data-quiz-mode="timed">⏱️ Timed Quiz</button>
                 </div>
 
                 <div class="stats">
@@ -182,7 +183,7 @@
                         You'll have <span id="timedQuizDuration">60</span> seconds to answer all questions.
                     </p>
                     <div class="controls">
-                        <button class="btn btn-next" onclick="startTimedQuiz()">🚀 Start Timed Quiz</button>
+                        <button class="btn btn-next" id="startTimedQuizBtn">🚀 Start Timed Quiz</button>
                     </div>
                 </div>
 
@@ -190,8 +191,8 @@
                     <div class="quiz-question" id="quizQuestion">Ready to test your knowledge?</div>
                     <div class="quiz-options" id="quizOptions"></div>
                     <div class="controls">
-                        <button class="btn btn-next" onclick="submitQuizAnswer()" id="quizSubmitBtn" style="display: none;">Submit Answer</button>
-                        <button class="btn btn-next" onclick="nextQuizQuestion()" id="quizNextBtn">▶️ Start Quiz</button>
+                        <button class="btn btn-next" id="quizSubmitBtn" style="display: none;">Submit Answer</button>
+                        <button class="btn btn-next" id="quizNextBtn">▶️ Start Quiz</button>
                     </div>
                 </div>
 
@@ -199,8 +200,8 @@
                     <h2>🎉 Quiz Complete!</h2>
                     <div id="quizFinalResults"></div>
                     <div class="controls">
-                        <button class="btn btn-next" onclick="restartQuiz()">🔄 Retake Quiz</button>
-                        <button class="btn btn-correct" onclick="downloadQuizResults()">📥 Download Results</button>
+                        <button class="btn btn-next" id="restartQuizBtn">🔄 Retake Quiz</button>
+                        <button class="btn btn-correct" id="downloadQuizResultsBtn">📥 Download Results</button>
                     </div>
                 </div>
             </div>
@@ -241,10 +242,10 @@
                 </div>
                 
                 <div class="progress-section">
-                    <button class="progress-btn" onclick="exportProgress()">📤 Export Progress</button>
-                    <button class="progress-btn" onclick="document.getElementById('progressImport').click()">📥 Import Progress</button>
-                    <button class="btn btn-secondary" onclick="clearProgress()">🗑️ Clear All Data</button>
-                    <input type="file" id="progressImport" accept=".json" style="display: none;" onchange="importProgress(event)">
+                    <button class="progress-btn" id="exportProgressBtn">📤 Export Progress</button>
+                    <button class="progress-btn" id="importProgressBtn">📥 Import Progress</button>
+                    <button class="btn btn-secondary" id="clearProgressBtn">🗑️ Clear All Data</button>
+                    <input type="file" id="progressImport" accept=".json" style="display: none;">
                 </div>
             </div>
         </div>
@@ -281,7 +282,7 @@
                     </div>
                 </div>
                 
-                <button class="btn btn-next" onclick="saveSettings()">💾 Save Configuration</button>
+                <button class="btn btn-next" id="saveSettingsBtn">💾 Save Configuration</button>
             </div>
         </div>
     </div>
