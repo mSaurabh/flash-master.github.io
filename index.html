@@ -218,21 +218,25 @@
         .card-back.easy {
             background: linear-gradient(135deg, #059669 0%, #047857 100%);
             color: white;
+            transform: rotateY(180deg);
         }
 
         .card-back.medium {
             background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
             color: white;
+            transform: rotateY(180deg);
         }
 
         .card-back.hard {
             background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
             color: white;
+            transform: rotateY(180deg);
         }
 
         .card-back.expert {
             background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
             color: white;
+            transform: rotateY(180deg);
         }
 
         .difficulty-indicator {
@@ -1081,9 +1085,9 @@
                 endTime: null
             };
             
-            const hasQuizChoices = flashcards.some(card => card.choices && card.correctChoices);
+            const hasQuizChoices = flashcards.some(card => card && card.choices && card.correctChoices);
             
-            if (hasQuizChoices) {
+            if (hasQuizChoices && flashcards.length > 0) {
                 document.getElementById('quizContent').style.display = 'block';
                 document.getElementById('noQuizMessage').style.display = 'none';
             } else {
@@ -1251,8 +1255,9 @@
             
             const card = flashcards[currentCardIndex];
             
-            if (!card.choices || !card.correctChoices) {
+            if (!card || !card.choices || !card.correctChoices) {
                 // Skip cards without quiz data
+                console.log('Skipping card without quiz data:', card?.id || 'unknown');
                 currentCardIndex++;
                 updateQuizQuestion();
                 return;
@@ -1286,6 +1291,11 @@
         function selectQuizOption(index, element) {
             const card = flashcards[currentCardIndex];
             
+            // Safety check
+            if (!card || currentCardIndex >= flashcards.length) {
+                return;
+            }
+            
             if (quizMode === 'single') {
                 // Single choice - clear other selections
                 document.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
@@ -1305,6 +1315,14 @@
 
         function submitQuizAnswer() {
             const card = flashcards[currentCardIndex];
+            
+            // Safety check to ensure card exists and has quiz data
+            if (!card || !card.correctChoices) {
+                console.error('Card missing quiz data:', card);
+                nextQuizQuestion();
+                return;
+            }
+            
             const correctAnswers = card.correctChoices;
             
             // Check if answer is correct
@@ -1347,9 +1365,11 @@
                 // Starting the quiz
                 quizStats.startTime = new Date().toISOString();
                 updateQuizQuestion();
-            } else {
+            } else if (currentCardIndex < flashcards.length) {
                 currentCardIndex++;
                 updateQuizQuestion();
+            } else {
+                completeQuiz();
             }
         }
 
@@ -1460,10 +1480,13 @@
 
         function updateQuizStats() {
             const accuracy = quizStats.total > 0 ? (quizStats.correct / quizStats.total * 100).toFixed(1) : 0;
-            const progress = flashcards.length > 0 ? (currentCardIndex / flashcards.length * 100).toFixed(1) : 0;
             
-            document.getElementById('quizCurrentCard').textContent = Math.min(currentCardIndex + 1, flashcards.length);
-            document.getElementById('quizTotalCards').textContent = flashcards.length;
+            // Count total quiz-eligible cards
+            const totalQuizCards = flashcards.filter(card => card && card.choices && card.correctChoices).length;
+            const progress = totalQuizCards > 0 ? (quizStats.total / totalQuizCards * 100).toFixed(1) : 0;
+            
+            document.getElementById('quizCurrentCard').textContent = quizStats.total + 1;
+            document.getElementById('quizTotalCards').textContent = totalQuizCards;
             document.getElementById('quizCorrectCount').textContent = quizStats.correct;
             document.getElementById('quizCurrentAccuracy').textContent = accuracy + '%';
             
