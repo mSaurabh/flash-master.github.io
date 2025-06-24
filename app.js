@@ -729,6 +729,11 @@ function resetQuiz() {
 }
 
 function updateQuizQuestion() {
+    // Don't proceed if quiz is completed or time is up
+    if (quizCompleted || timeLeft <= 0) {
+        return;
+    }
+    
     if (currentCardIndex >= flashcards.length) {
         completeQuiz();
         return;
@@ -746,7 +751,7 @@ function updateQuizQuestion() {
     
     const quizQuestion = document.getElementById('quizQuestion');
     if (quizQuestion) {
-        quizQuestion.textContent = card.question;
+        quizQuestion.textContent = `Question ${currentCardIndex + 1}: ${card.question}`;
     }
     
     const optionsContainer = document.getElementById('quizOptions');
@@ -760,10 +765,14 @@ function updateQuizQuestion() {
             option.textContent = choice;
             option.setAttribute('data-index', index);
             option.style.pointerEvents = 'auto'; // Ensure it's clickable
+            option.style.opacity = '1'; // Reset opacity
             
             // Add click event listener (CSP-compliant)
             option.addEventListener('click', function() {
-                selectQuizOption(index, this);
+                // Don't allow selection if time is up
+                if (!quizCompleted && timeLeft > 0) {
+                    selectQuizOption(index, this);
+                }
             });
             
             optionsContainer.appendChild(option);
@@ -778,8 +787,10 @@ function updateQuizQuestion() {
     
     updateQuizStats();
     
-    // Don't auto-start timer in timed mode - it should only start when user clicks "Start Quiz"
-    // Timer is now started in startTimedQuiz() function
+    // Show current question number and remaining time
+    console.log(`Question ${currentCardIndex + 1}/${flashcards.length}, ${timeLeft}s remaining`);
+    
+    // NOTE: Timer continues running from startEntireQuizTimer() - do NOT restart it here!
 }
 
 function selectQuizOption(index, element) {
@@ -832,6 +843,11 @@ function submitQuizAnswer() {
         return;
     }
     
+    // Don't allow submission if time is up
+    if (quizCompleted || timeLeft <= 0) {
+        return;
+    }
+    
     const correctAnswers = card.correctChoices;
     
     // Check if answer is correct
@@ -875,10 +891,17 @@ function submitQuizAnswer() {
     const submitBtn = document.getElementById('quizSubmitBtn');
     if (submitBtn) submitBtn.style.display = 'none';
     
+    // Move to next question after delay (timer continues running)
     setTimeout(() => {
         currentCardIndex++;
-        updateQuizQuestion();
-    }, 2500); // Longer delay to read feedback
+        
+        // Check if quiz should end (either all questions done OR time up)
+        if (currentCardIndex >= flashcards.length || quizCompleted) {
+            completeQuiz();
+        } else {
+            updateQuizQuestion(); // Load next question, timer keeps running
+        }
+    }, 1500); // Shorter delay to maximize quiz time usage
 }
 
 function nextQuizQuestion() {
@@ -908,20 +931,28 @@ function startTimedQuiz() {
     
     // Reset quiz state
     quizCompleted = false;
-    quizStats.startTime = new Date().toISOString();
+    currentCardIndex = 0;
+    selectedAnswers = [];
+    quizStats = {
+        correct: 0,
+        total: 0,
+        answers: [],
+        startTime: new Date().toISOString(),
+        endTime: null
+    };
     
-    // Start the quiz and timer
+    // Start the quiz and timer for ENTIRE quiz duration
     updateQuizQuestion();
-    startQuizTimer();
+    startEntireQuizTimer();
 }
 
-function startQuizTimer() {
+function startEntireQuizTimer() {
     // Clear any existing timer first
     if (quizTimer) {
         clearInterval(quizTimer);
     }
     
-    // Get the current time limit from settings
+    // Get the current time limit from settings - this is for the ENTIRE quiz
     timeLeft = parseInt(settings.quizTimeLimit) || 60;
     const totalTime = timeLeft;
     timerStarted = true;
@@ -929,40 +960,49 @@ function startQuizTimer() {
     const timeLeftElement = document.getElementById('timeLeft');
     const timerProgressFill = document.getElementById('timerProgressFill');
     
-    // Initial display
+    // Initial display - start at full
     if (timeLeftElement) {
         timeLeftElement.textContent = timeLeft;
     }
     if (timerProgressFill) {
-        timerProgressFill.style.width = '100%';
+        timerProgressFill.style.width = '100%'; // Start full
+        timerProgressFill.style.background = 'linear-gradient(90deg, #10B981 0%, #FFD700 100%)';
     }
     
-    console.log('Starting timer with', timeLeft, 'seconds'); // Debug log
+    console.log('Starting ENTIRE QUIZ timer with', timeLeft, 'seconds total'); // Debug log
     
     quizTimer = setInterval(() => {
         timeLeft--;
         
         // Update time display
         if (timeLeftElement) {
-            timeLeftElement.textContent = Math.max(0, timeLeft); // Prevent negative display
+            timeLeftElement.textContent = Math.max(0, timeLeft);
         }
         
-        // Update progress bar
+        // Update progress bar - EMPTIES as time runs out
         if (timerProgressFill) {
             const percentage = Math.max(0, (timeLeft / totalTime) * 100);
-            timerProgressFill.style.width = percentage + '%';
+            timerProgressFill.style.width = percentage + '%'; // Gets smaller over time
             
-            // Change color as time runs out
-            if (percentage > 50) {
-                timerProgressFill.style.background = 'linear-gradient(90deg, #10B981 0%, #FFD700 100%)';
-            } else if (percentage > 20) {
-                timerProgressFill.style.background = 'linear-gradient(90deg, #FFD700 0%, #F59E0B 100%)';
+            // Change color and glow as time runs out
+            if (percentage > 60) {
+                timerProgressFill.style.background = 'linear-gradient(90deg, #10B981 0%, #34D399 100%)';
+                timerProgressFill.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.4)';
+            } else if (percentage > 30) {
+                timerProgressFill.style.background = 'linear-gradient(90deg, #FFD700 0%, #FbbF24 100%)';
+                timerProgressFill.style.boxShadow = '0 0 10px rgba(255, 215, 0, 0.4)';
             } else {
-                timerProgressFill.style.background = 'linear-gradient(90deg, #EF4444 0%, #DC2626 100%)';
+                timerProgressFill.style.background = 'linear-gradient(90deg, #EF4444 0%, #F87171 100%)';
+                timerProgressFill.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.6)';
+                
+                // Add pulsing effect when time is critically low
+                if (percentage < 10) {
+                    timerProgressFill.style.animation = 'pulse 0.5s ease-in-out infinite alternate';
+                }
             }
         }
         
-        console.log('Timer:', timeLeft, 'seconds remaining'); // Debug log
+        console.log('ENTIRE QUIZ Timer:', timeLeft, 'seconds remaining,', Math.round((timeLeft / totalTime) * 100) + '% left'); // Debug log
         
         // Complete quiz when time runs out (only once)
         if (timeLeft <= 0 && !quizCompleted) {
@@ -971,10 +1011,19 @@ function startQuizTimer() {
             timerStarted = false;
             quizCompleted = true;
             
+            // Disable all quiz interactions
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                opt.style.opacity = '0.5';
+            });
+            
+            const submitBtn = document.getElementById('quizSubmitBtn');
+            if (submitBtn) submitBtn.style.display = 'none';
+            
             showMessage('⏰ Time\'s up! Quiz completed automatically.', 'error');
             setTimeout(() => {
                 completeQuiz();
-            }, 500); // Small delay to prevent multiple calls
+            }, 1000); // Small delay to show the message
         }
     }, 1000);
 }
@@ -1023,15 +1072,36 @@ function completeQuiz() {
     const accuracy = quizStats.total > 0 ? (quizStats.correct / quizStats.total * 100).toFixed(1) : 0;
     const passed = parseFloat(accuracy) >= settings.passingThreshold;
     
-    console.log(`Quiz completed: ${quizStats.correct}/${quizStats.total} = ${accuracy}%, passing threshold: ${settings.passingThreshold}%, passed: ${passed}`); // Debug log
+    // Calculate if quiz ended due to time or completion
+    const timeRanOut = timeLeft <= 0;
+    const questionsCompleted = currentCardIndex >= flashcards.length;
     
-    // Show confetti if passed!
+    console.log(`Quiz completed: ${quizStats.correct}/${quizStats.total} = ${accuracy}%, passing threshold: ${settings.passingThreshold}%, passed: ${passed}, time ran out: ${timeRanOut}, questions completed: ${questionsCompleted}`); // Debug log
+    
+    // Show appropriate completion message
     if (passed) {
         showConfetti();
-        showMessage('🎉 Congratulations! You passed the quiz!', 'success');
+        if (timeRanOut) {
+            showMessage('🎉 Time\'s up, but you passed! Great job under pressure!', 'success');
+        } else {
+            showMessage('🎉 Congratulations! You passed the quiz!', 'success');
+        }
     } else {
-        showMessage(`📚 You scored ${accuracy}%. Keep practicing to reach ${settings.passingThreshold}%!`, 'error');
+        if (timeRanOut) {
+            showMessage(`⏰ Time's up! You scored ${accuracy}%. Need ${settings.passingThreshold}% to pass.`, 'error');
+        } else {
+            showMessage(`📚 You scored ${accuracy}%. Keep practicing to reach ${settings.passingThreshold}%!`, 'error');
+        }
     }
+    
+    // Disable all remaining quiz interactions
+    document.querySelectorAll('.quiz-option').forEach(opt => {
+        opt.style.pointerEvents = 'none';
+        opt.style.opacity = '0.6';
+    });
+    
+    const submitBtn = document.getElementById('quizSubmitBtn');
+    if (submitBtn) submitBtn.style.display = 'none';
     
     // Save quiz to progress
     const quizData = {
@@ -1043,7 +1113,9 @@ function completeQuiz() {
         type: 'quiz',
         mode: quizMode,
         topic: document.getElementById('currentTopic').textContent.split('\n')[0],
-        duration: quizStats.startTime ? Math.round((new Date(quizStats.endTime) - new Date(quizStats.startTime)) / 1000) : 0
+        duration: quizStats.startTime ? Math.round((new Date(quizStats.endTime) - new Date(quizStats.startTime)) / 1000) : 0,
+        completedAllQuestions: questionsCompleted,
+        timeRanOut: timeRanOut
     };
     
     progressData.push(quizData);
@@ -1055,6 +1127,10 @@ function completeQuiz() {
     
     if (quizComplete) quizComplete.style.display = 'block';
     if (quizFinalResults) {
+        const completionStatus = questionsCompleted ? 
+            `All ${quizStats.total} questions completed` : 
+            `${quizStats.total} of ${flashcards.length} questions answered`;
+            
         quizFinalResults.innerHTML = `
             <div class="stats-grid">
                 <div class="stat-card" style="background: ${passed ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)'}; border-color: ${passed ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}">
@@ -1067,13 +1143,16 @@ function completeQuiz() {
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">${quizData.duration}s</div>
-                    <div class="stat-label">Time Taken</div>
+                    <div class="stat-label">Time Used</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">${passed ? '🎉' : '📚'}</div>
                     <div class="stat-label">${passed ? 'Passed!' : 'Keep Learning!'}</div>
                 </div>
             </div>
+            <p style="text-align: center; margin-top: 16px; color: rgba(228, 228, 231, 0.7);">
+                ${completionStatus}${timeRanOut ? ' • Time limit reached' : ''}
+            </p>
         `;
     }
     
