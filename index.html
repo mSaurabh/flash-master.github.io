@@ -73,7 +73,7 @@
         <div id="study" class="tab-content">
             <div id="studyContent" style="display: none;">
                 <div class="mode-selector">
-                    <button class="mode-btn active" onclick="setStudyMode('flashcard')">💳 Flashcard Mode</button>
+                    <button class="mode-btn active" onclick="setStudyMode('flashcard', event)">💳 Flashcard Mode</button>
                 </div>
 
                 <div class="stats">
@@ -138,9 +138,9 @@
         <div id="quiz" class="tab-content">
             <div id="quizContent" style="display: none;">
                 <div class="mode-selector">
-                    <button class="mode-btn active" onclick="setQuizMode('single')">🎯 Single Choice</button>
-                    <button class="mode-btn" onclick="setQuizMode('multiple')">✅ Multiple Choice</button>
-                    <button class="mode-btn" onclick="setQuizMode('timed')">⏱️ Timed Quiz</button>
+                    <button class="mode-btn active" onclick="setQuizMode('single', event)">🎯 Single Choice</button>
+                    <button class="mode-btn" onclick="setQuizMode('multiple', event)">✅ Multiple Choice</button>
+                    <button class="mode-btn" onclick="setQuizMode('timed', event)">⏱️ Timed Quiz</button>
                 </div>
 
                 <div class="stats">
@@ -169,7 +169,12 @@
                     </div>
                 </div>
 
-                <div id="quizTimer" class="quiz-timer" style="display: none;">⏱️ Time Remaining: <span id="timeLeft">60</span>s</div>
+                <div id="quizTimer" class="quiz-timer" style="display: none;">
+                    ⏱️ Time Remaining: <span id="timeLeft">60</span>s
+                    <div class="timer-progress-bar">
+                        <div class="timer-progress-fill" id="timerProgressFill" style="width: 100%"></div>
+                    </div>
+                </div>
 
                 <div class="quiz-container">
                     <div class="quiz-question" id="quizQuestion">Ready to test your knowledge?</div>
