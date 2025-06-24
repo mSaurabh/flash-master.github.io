@@ -41,6 +41,42 @@ flashmaster/
 - **Passing Thresholds**: Set your own success criteria
 - **Card Shuffling**: Randomize or keep sequential order
 
+## 🔒 Security Features
+
+### Content Security Policy (CSP) Compliance
+FlashMaster is built with security in mind:
+
+- **No inline JavaScript**: All event handlers use proper event listeners
+- **CSP-compliant**: No use of `eval()`, `new Function()`, or string-based timeouts
+- **External script validation**: Only trusted CDN sources (Chart.js)
+- **Safe data handling**: All user data is sanitized and stored locally
+
+### Security Headers
+The app includes a CSP meta tag:
+```html
+<meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; 
+               script-src 'self' https://cdnjs.cloudflare.com; 
+               style-src 'self' 'unsafe-inline'; 
+               img-src 'self' data:; 
+               font-src 'self' https:;">
+```
+
+### 🎯 Study Modes
+- **Flashcard Mode**: Interactive card flipping with difficulty-based colors
+- **Quiz Mode**: Single/multiple choice questions with instant feedback
+- **Timed Quizzes**: Challenge yourself with time limits
+
+### 📊 Progress Tracking
+- **Visual Analytics**: Charts showing performance over time
+- **Session Statistics**: Track accuracy, passing rates, and trends
+- **Export/Import**: Save and restore progress data
+
+### ⚙️ Customization
+- **Difficulty Colors**: Easy (🟢), Medium (🔵), Hard (🟠), Expert (🔴)
+- **Passing Thresholds**: Set your own success criteria
+- **Card Shuffling**: Randomize or keep sequential order
+
 ## 📁 JSON Format
 
 Create flashcard sets using this JSON structure:
