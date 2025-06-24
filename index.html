@@ -875,6 +875,19 @@
             updateProgressChart();
             updateProgressStats();
             
+            // Initialize content visibility safely
+            if (flashcards.length === 0) {
+                const studyContent = document.getElementById('studyContent');
+                const noCardsMessage = document.getElementById('noCardsMessage');
+                const quizContent = document.getElementById('quizContent');
+                const noQuizMessage = document.getElementById('noQuizMessage');
+                
+                if (studyContent) studyContent.style.display = 'none';
+                if (noCardsMessage) noCardsMessage.style.display = 'block';
+                if (quizContent) quizContent.style.display = 'none';
+                if (noQuizMessage) noQuizMessage.style.display = 'block';
+            }
+            
             // Set up drag and drop
             const uploadArea = document.querySelector('.file-upload');
             uploadArea.addEventListener('dragover', (e) => {
@@ -1018,18 +1031,27 @@
                         shuffleArray(flashcards);
                     }
                     
-                    resetSession();
-                    resetQuiz();
-                    updateCurrentTopic(data.topic || 'Unknown Topic', data.description);
-                    showMessage(`Successfully loaded ${flashcards.length} flashcards!`, 'success');
-                    
-                    // Switch to study tab
-                    switchTab('study');
+                    // Small delay to ensure DOM is ready
+                    setTimeout(() => {
+                        resetSession();
+                        resetQuiz();
+                        updateCurrentTopic(data.topic || 'Unknown Topic', data.description);
+                        showMessage(`Successfully loaded ${flashcards.length} flashcards!`, 'success');
+                        
+                        // Switch to study tab
+                        switchTab('study');
+                    }, 100);
                     
                 } catch (error) {
+                    console.error('JSON loading error:', error);
                     showMessage('Error loading JSON file: ' + error.message, 'error');
                 }
             };
+            
+            reader.onerror = function() {
+                showMessage('Error reading file', 'error');
+            };
+            
             reader.readAsText(file);
         }
 
@@ -1108,28 +1130,45 @@
             }
             
             const card = flashcards[currentCardIndex];
-            document.getElementById('questionText').textContent = card.question;
-            document.getElementById('answerText').textContent = card.answer;
+            
+            // Safely update text content
+            const questionText = document.getElementById('questionText');
+            const answerText = document.getElementById('answerText');
+            if (questionText) questionText.textContent = card.question;
+            if (answerText) answerText.textContent = card.answer;
             
             // Update card colors based on difficulty
             const cardFront = document.getElementById('cardFront');
             const cardBack = document.getElementById('cardBack');
             
-            cardFront.className = `card-face card-front ${card.difficulty}`;
-            cardBack.className = `card-face card-back ${card.difficulty}`;
+            if (cardFront) {
+                cardFront.className = `card-face card-front ${card.difficulty}`;
+            }
+            if (cardBack) {
+                cardBack.className = `card-face card-back ${card.difficulty}`;
+            }
             
             // Update difficulty indicator
             const difficultyIndicator = document.getElementById('difficultyIndicator');
-            difficultyIndicator.textContent = card.difficulty.toUpperCase();
+            if (difficultyIndicator) {
+                difficultyIndicator.textContent = card.difficulty.toUpperCase();
+            }
             
             // Reset card flip
-            document.getElementById('flashcard').classList.remove('flipped');
+            const flashcard = document.getElementById('flashcard');
+            if (flashcard) {
+                flashcard.classList.remove('flipped');
+            }
             isFlipped = false;
             
             // Update buttons
-            document.getElementById('correctBtn').style.display = 'none';
-            document.getElementById('incorrectBtn').style.display = 'none';
-            document.getElementById('nextBtn').textContent = '🔄 Flip Card';
+            const correctBtn = document.getElementById('correctBtn');
+            const incorrectBtn = document.getElementById('incorrectBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (correctBtn) correctBtn.style.display = 'none';
+            if (incorrectBtn) incorrectBtn.style.display = 'none';
+            if (nextBtn) nextBtn.textContent = '🔄 Flip Card';
             
             updateSessionStats();
         }
@@ -1137,13 +1176,19 @@
         function flipCard() {
             if (currentCardIndex < flashcards.length) {
                 const flashcard = document.getElementById('flashcard');
-                flashcard.classList.toggle('flipped');
-                isFlipped = !isFlipped;
-                
-                if (isFlipped) {
-                    document.getElementById('correctBtn').style.display = 'inline-block';
-                    document.getElementById('incorrectBtn').style.display = 'inline-block';
-                    document.getElementById('nextBtn').style.display = 'none';
+                if (flashcard) {
+                    flashcard.classList.toggle('flipped');
+                    isFlipped = !isFlipped;
+                    
+                    if (isFlipped) {
+                        const correctBtn = document.getElementById('correctBtn');
+                        const incorrectBtn = document.getElementById('incorrectBtn');
+                        const nextBtn = document.getElementById('nextBtn');
+                        
+                        if (correctBtn) correctBtn.style.display = 'inline-block';
+                        if (incorrectBtn) incorrectBtn.style.display = 'inline-block';
+                        if (nextBtn) nextBtn.style.display = 'none';
+                    }
                 }
             }
         }
@@ -1164,10 +1209,17 @@
             currentCardIndex++;
             updateCard();
             
-            document.getElementById('correctBtn').style.display = 'none';
-            document.getElementById('incorrectBtn').style.display = 'none';
-            document.getElementById('nextBtn').style.display = 'inline-block';
-            document.getElementById('nextBtn').textContent = currentCardIndex >= flashcards.length ? '🏁 Finish' : '▶️ Next Card';
+            // Safely hide buttons
+            const correctBtn = document.getElementById('correctBtn');
+            const incorrectBtn = document.getElementById('incorrectBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (correctBtn) correctBtn.style.display = 'none';
+            if (incorrectBtn) incorrectBtn.style.display = 'none';
+            if (nextBtn) {
+                nextBtn.style.display = 'inline-block';
+                nextBtn.textContent = currentCardIndex >= flashcards.length ? '🏁 Finish' : '▶️ Next Card';
+            }
         }
 
         function nextCard() {
@@ -1293,23 +1345,33 @@
             const card = flashcards[currentCardIndex];
             
             // Safety check
-            if (!card || currentCardIndex >= flashcards.length) {
+            if (!card || currentCardIndex >= flashcards.length || !element) {
                 return;
             }
             
             if (quizMode === 'single') {
                 // Single choice - clear other selections
-                document.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
+                document.querySelectorAll('.quiz-option').forEach(opt => {
+                    if (opt.classList) {
+                        opt.classList.remove('selected');
+                    }
+                });
                 selectedAnswers = [index];
-                element.classList.add('selected');
+                if (element.classList) {
+                    element.classList.add('selected');
+                }
             } else {
                 // Multiple choice - toggle selection
                 if (selectedAnswers.includes(index)) {
                     selectedAnswers = selectedAnswers.filter(i => i !== index);
-                    element.classList.remove('selected');
+                    if (element.classList) {
+                        element.classList.remove('selected');
+                    }
                 } else {
                     selectedAnswers.push(index);
-                    element.classList.add('selected');
+                    if (element.classList) {
+                        element.classList.add('selected');
+                    }
                 }
             }
         }
@@ -1332,10 +1394,12 @@
             
             // Show correct/incorrect feedback
             document.querySelectorAll('.quiz-option').forEach((opt, index) => {
-                if (correctAnswers.includes(index)) {
-                    opt.classList.add('correct');
-                } else if (selectedAnswers.includes(index)) {
-                    opt.classList.add('incorrect');
+                if (opt && opt.classList) {
+                    if (correctAnswers.includes(index)) {
+                        opt.classList.add('correct');
+                    } else if (selectedAnswers.includes(index)) {
+                        opt.classList.add('incorrect');
+                    }
                 }
             });
             
@@ -1632,13 +1696,6 @@
             }, 4000);
         }
 
-        // Initialize content visibility
-        if (flashcards.length === 0) {
-            document.getElementById('studyContent').style.display = 'none';
-            document.getElementById('noCardsMessage').style.display = 'block';
-            document.getElementById('quizContent').style.display = 'none';
-            document.getElementById('noQuizMessage').style.display = 'block';
-        }
     </script>
 </body>
 </html>
