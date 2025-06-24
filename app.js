@@ -15,6 +15,8 @@ let quizMode = 'single';
 let selectedAnswers = [];
 let quizTimer = null;
 let timeLeft = 60;
+let timerStarted = false;
+let quizCompleted = false;
 
 let sessionStats = {
     correct: 0,
@@ -216,10 +218,21 @@ function updateCurrentTopic(topic, description) {
 // Flashcard Study Mode
 // ==========================================================================
 
-function setStudyMode(mode) {
+function setStudyMode(mode, event = null) {
     currentMode = mode;
     document.querySelectorAll('#study .mode-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+    
+    if (event && event.target) {
+        event.target.classList.add('active');
+    } else {
+        // Find the correct button based on mode
+        document.querySelectorAll('#study .mode-btn').forEach(btn => {
+            const btnText = btn.textContent.toLowerCase();
+            if (mode === 'flashcard' && btnText.includes('flashcard')) {
+                btn.classList.add('active');
+            }
+        });
+    }
 }
 
 function resetSession() {
@@ -436,20 +449,85 @@ function updateSessionStats() {
 // Quiz Mode
 // ==========================================================================
 
-function setQuizMode(mode) {
+function setQuizMode(mode, event = null) {
     quizMode = mode;
     document.querySelectorAll('#quiz .mode-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
     
-    const quizTimer = document.getElementById('quizTimer');
+    if (event && event.target) {
+        event.target.classList.add('active');
+    } else {
+        // Find the correct button based on mode
+        document.querySelectorAll('#quiz .mode-btn').forEach(btn => {
+            const btnText = btn.textContent.toLowerCase();
+            if ((mode === 'single' && btnText.includes('single')) ||
+                (mode === 'multiple' && btnText.includes('multiple')) ||
+                (mode === 'timed' && btnText.includes('timed'))) {
+                btn.classList.add('active');
+            }
+        });
+    }
+    
+    const quizTimerElement = document.getElementById('quizTimer');
+    const timedQuizStart = document.getElementById('timedQuizStart');
+    const quizContainer = document.querySelector('.quiz-container:not(#timedQuizStart)');
+    
+    // Clear any running timer when switching modes
     if (quizTimer) {
-        quizTimer.style.display = mode === 'timed' ? 'block' : 'none';
+        clearInterval(quizTimer);
+        quizTimer = null;
+        timerStarted = false;
+    }
+    
+    if (mode === 'timed') {
+        // Show timed quiz start screen, hide regular quiz
+        if (quizTimerElement) quizTimerElement.style.display = 'none';
+        if (timedQuizStart) {
+            timedQuizStart.style.display = 'block';
+            const durationSpan = document.getElementById('timedQuizDuration');
+            if (durationSpan) durationSpan.textContent = settings.quizTimeLimit || 60;
+        }
+        if (quizContainer) quizContainer.style.display = 'none';
+        
+        // Reset timer display
+        const timeLeftElement = document.getElementById('timeLeft');
+        const timerProgressFill = document.getElementById('timerProgressFill');
+        
+        if (timeLeftElement) {
+            timeLeftElement.textContent = settings.quizTimeLimit || 60;
+        }
+        if (timerProgressFill) {
+            timerProgressFill.style.width = '100%';
+            timerProgressFill.style.background = 'linear-gradient(90deg, #10B981 0%, #FFD700 100%)';
+        }
+    } else {
+        // Show regular quiz, hide timed quiz elements
+        if (quizTimerElement) quizTimerElement.style.display = 'none';
+        if (timedQuizStart) timedQuizStart.style.display = 'none';
+        if (quizContainer) quizContainer.style.display = 'block';
+    }
+    
+    // Reset quiz state when changing modes
+    quizCompleted = false;
+    
+    // Only reset quiz if we have flashcards loaded
+    if (flashcards.length > 0) {
+        resetQuiz();
     }
 }
 
 function resetQuiz() {
+    // Clear any running timer first
+    if (quizTimer) {
+        clearInterval(quizTimer);
+        quizTimer = null;
+    }
+    
     currentCardIndex = 0;
     selectedAnswers = [];
+    timerStarted = false;
+    quizCompleted = false;
+    timeLeft = parseInt(settings.quizTimeLimit) || 60;
+    
     quizStats = {
         correct: 0,
         total: 0,
@@ -463,6 +541,8 @@ function resetQuiz() {
     const quizContent = document.getElementById('quizContent');
     const noQuizMessage = document.getElementById('noQuizMessage');
     const quizComplete = document.getElementById('quizComplete');
+    const timedQuizStart = document.getElementById('timedQuizStart');
+    const quizContainer = document.querySelector('.quiz-container:not(#timedQuizStart)');
     
     if (hasQuizChoices && flashcards.length > 0) {
         if (quizContent) quizContent.style.display = 'block';
@@ -473,8 +553,39 @@ function resetQuiz() {
     }
     
     if (quizComplete) quizComplete.style.display = 'none';
+    
+    // Show appropriate interface based on quiz mode
+    if (quizMode === 'timed') {
+        if (timedQuizStart) {
+            timedQuizStart.style.display = 'block';
+            const durationSpan = document.getElementById('timedQuizDuration');
+            if (durationSpan) durationSpan.textContent = settings.quizTimeLimit || 60;
+        }
+        if (quizContainer) quizContainer.style.display = 'none';
+        
+        // Reset timer display
+        const timeLeftElement = document.getElementById('timeLeft');
+        const timerProgressFill = document.getElementById('timerProgressFill');
+        const quizTimerElement = document.getElementById('quizTimer');
+        
+        if (timeLeftElement) timeLeftElement.textContent = settings.quizTimeLimit || 60;
+        if (timerProgressFill) {
+            timerProgressFill.style.width = '100%';
+            timerProgressFill.style.background = 'linear-gradient(90deg, #10B981 0%, #FFD700 100%)';
+        }
+        if (quizTimerElement) quizTimerElement.style.display = 'none';
+    } else {
+        if (timedQuizStart) timedQuizStart.style.display = 'none';
+        if (quizContainer) quizContainer.style.display = 'block';
+        updateQuizQuestion();
+    }
+    
     updateQuizStats();
-    updateQuizQuestion();
+    
+    // Only update quiz question for non-timed modes
+    if (quizMode !== 'timed') {
+        updateQuizQuestion();
+    }
 }
 
 function updateQuizQuestion() {
@@ -527,10 +638,8 @@ function updateQuizQuestion() {
     
     updateQuizStats();
     
-    // Start timer for timed mode
-    if (quizMode === 'timed' && quizStats.startTime === null) {
-        startQuizTimer();
-    }
+    // Don't auto-start timer in timed mode - it should only start when user clicks "Start Quiz"
+    // Timer is now started in startTimedQuiz() function
 }
 
 function selectQuizOption(index, element) {
@@ -634,8 +743,10 @@ function submitQuizAnswer() {
 
 function nextQuizQuestion() {
     if (currentCardIndex === 0 && quizStats.total === 0) {
-        // Starting the quiz
-        quizStats.startTime = new Date().toISOString();
+        // Starting the quiz (for non-timed modes)
+        if (quizMode !== 'timed') {
+            quizStats.startTime = new Date().toISOString();
+        }
         updateQuizQuestion();
     } else if (currentCardIndex < flashcards.length) {
         currentCardIndex++;
@@ -645,22 +756,85 @@ function nextQuizQuestion() {
     }
 }
 
+function startTimedQuiz() {
+    // Hide start screen and show quiz
+    const timedQuizStart = document.getElementById('timedQuizStart');
+    const quizContainer = document.querySelector('.quiz-container:not(#timedQuizStart)');
+    const quizTimerElement = document.getElementById('quizTimer');
+    
+    if (timedQuizStart) timedQuizStart.style.display = 'none';
+    if (quizContainer) quizContainer.style.display = 'block';
+    if (quizTimerElement) quizTimerElement.style.display = 'block';
+    
+    // Reset quiz state
+    quizCompleted = false;
+    quizStats.startTime = new Date().toISOString();
+    
+    // Start the quiz and timer
+    updateQuizQuestion();
+    startQuizTimer();
+}
+
 function startQuizTimer() {
-    timeLeft = settings.quizTimeLimit;
+    // Clear any existing timer first
+    if (quizTimer) {
+        clearInterval(quizTimer);
+    }
+    
+    // Get the current time limit from settings
+    timeLeft = parseInt(settings.quizTimeLimit) || 60;
+    const totalTime = timeLeft;
+    timerStarted = true;
+    
     const timeLeftElement = document.getElementById('timeLeft');
+    const timerProgressFill = document.getElementById('timerProgressFill');
+    
+    // Initial display
     if (timeLeftElement) {
         timeLeftElement.textContent = timeLeft;
     }
+    if (timerProgressFill) {
+        timerProgressFill.style.width = '100%';
+    }
+    
+    console.log('Starting timer with', timeLeft, 'seconds'); // Debug log
     
     quizTimer = setInterval(() => {
         timeLeft--;
+        
+        // Update time display
         if (timeLeftElement) {
-            timeLeftElement.textContent = timeLeft;
+            timeLeftElement.textContent = Math.max(0, timeLeft); // Prevent negative display
         }
         
-        if (timeLeft <= 0) {
+        // Update progress bar
+        if (timerProgressFill) {
+            const percentage = Math.max(0, (timeLeft / totalTime) * 100);
+            timerProgressFill.style.width = percentage + '%';
+            
+            // Change color as time runs out
+            if (percentage > 50) {
+                timerProgressFill.style.background = 'linear-gradient(90deg, #10B981 0%, #FFD700 100%)';
+            } else if (percentage > 20) {
+                timerProgressFill.style.background = 'linear-gradient(90deg, #FFD700 0%, #F59E0B 100%)';
+            } else {
+                timerProgressFill.style.background = 'linear-gradient(90deg, #EF4444 0%, #DC2626 100%)';
+            }
+        }
+        
+        console.log('Timer:', timeLeft, 'seconds remaining'); // Debug log
+        
+        // Complete quiz when time runs out (only once)
+        if (timeLeft <= 0 && !quizCompleted) {
             clearInterval(quizTimer);
-            completeQuiz();
+            quizTimer = null;
+            timerStarted = false;
+            quizCompleted = true;
+            
+            showMessage('⏰ Time\'s up! Quiz completed automatically.', 'error');
+            setTimeout(() => {
+                completeQuiz();
+            }, 500); // Small delay to prevent multiple calls
         }
     }, 1000);
 }
@@ -689,18 +863,34 @@ function showConfetti() {
 }
 
 function completeQuiz() {
+    // Prevent multiple completions
+    if (quizCompleted) {
+        console.log('Quiz already completed, ignoring duplicate call');
+        return;
+    }
+    
+    quizCompleted = true;
+    
+    // Clear timer if running
     if (quizTimer) {
         clearInterval(quizTimer);
+        quizTimer = null;
+        timerStarted = false;
+        console.log('Timer cleared on quiz completion'); // Debug log
     }
     
     quizStats.endTime = new Date().toISOString();
     const accuracy = quizStats.total > 0 ? (quizStats.correct / quizStats.total * 100).toFixed(1) : 0;
-    const passed = accuracy >= settings.passingThreshold;
+    const passed = parseFloat(accuracy) >= settings.passingThreshold;
+    
+    console.log(`Quiz completed: ${quizStats.correct}/${quizStats.total} = ${accuracy}%, passing threshold: ${settings.passingThreshold}%, passed: ${passed}`); // Debug log
     
     // Show confetti if passed!
     if (passed) {
         showConfetti();
         showMessage('🎉 Congratulations! You passed the quiz!', 'success');
+    } else {
+        showMessage(`📚 You scored ${accuracy}%. Keep practicing to reach ${settings.passingThreshold}%!`, 'error');
     }
     
     // Save quiz to progress
@@ -1016,6 +1206,14 @@ function saveSettings() {
     
     localStorage.setItem('flashcardSettings', JSON.stringify(settings));
     showMessage('Configuration saved successfully!', 'success');
+    
+    // Update timer display if in quiz mode and timed mode
+    if (quizMode === 'timed') {
+        const timeLeftElement = document.getElementById('timeLeft');
+        if (timeLeftElement && !quizTimer) { // Only update if timer isn't running
+            timeLeftElement.textContent = settings.quizTimeLimit;
+        }
+    }
     
     // Update progress chart if threshold changed
     updateProgressChart();
