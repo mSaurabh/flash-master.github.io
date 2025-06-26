@@ -180,7 +180,7 @@
                 <div id="timedQuizStart" class="quiz-container" style="display: none;">
                     <div class="quiz-question">Ready for a timed challenge?</div>
                     <p style="text-align: center; margin: 20px 0; color: rgba(228, 228, 231, 0.7);">
-                        You'll have <span id="timedQuizDuration">60</span> seconds to answer all questions.
+                        You'll have <span id="timedQuizDuration">60</span> minutes to answer all questions.
                     </p>
                     <div class="controls">
                         <button class="btn btn-next" id="startTimedQuizBtn">🚀 Start Timed Quiz</button>
@@ -291,6 +291,13 @@
     <div id="floatingTimer" class="floating-timer" style="display: none;">
         <div class="timer-circle">
             <svg class="timer-svg" viewBox="0 0 100 100">
+                <defs>
+                    <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00F5FF;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#FF6B9D;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
                 <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
                 <circle class="timer-progress" cx="50" cy="50" r="45" id="timerCircle"></circle>
             </svg>

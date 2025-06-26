@@ -28,13 +28,12 @@ function updateFloatingTimer(timeLeft, totalTime) {
         const dashOffset = 283 - (283 * percentage / 100);
         timerCircle.style.strokeDashoffset = dashOffset;
         
-        // Change color based on remaining time
-        if (percentage > 60) {
-            timerCircle.style.stroke = '#10B981'; // Green
-        } else if (percentage > 30) {
-            timerCircle.style.stroke = '#FFD700'; // Yellow
+        // Enhanced visual feedback based on remaining time
+        if (percentage < 20) {
+            // Critical time - add urgent pulsing
+            timerCircle.style.animation = 'urgentPulse 0.5s ease-in-out infinite';
         } else {
-            timerCircle.style.stroke = '#EF4444'; // Red
+            timerCircle.style.animation = 'none';
         }
     }
 }
