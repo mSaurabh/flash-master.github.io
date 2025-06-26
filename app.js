@@ -52,6 +52,7 @@ let quizTimer = null;
 let timeLeft = 60;
 let timerStarted = false;
 let quizCompleted = false;
+let currentFileContent = null; // Store the current file content for duplicate detection
 
 let sessionStats = {
     correct: 0,
@@ -196,6 +197,16 @@ function setupEventListeners() {
     if (downloadQuizResultsBtn) {
         downloadQuizResultsBtn.addEventListener('click', downloadQuizResults);
     }
+    
+    // End quiz buttons
+    const endQuizBtn = document.getElementById('endQuizBtn');
+    const endQuizMainBtn = document.getElementById('endQuizMainBtn');
+    if (endQuizBtn) {
+        endQuizBtn.addEventListener('click', endQuizEarly);
+    }
+    if (endQuizMainBtn) {
+        endQuizMainBtn.addEventListener('click', endQuizEarly);
+    }
 
     // Progress buttons
     const exportProgressBtn = document.getElementById('exportProgressBtn');
@@ -225,6 +236,12 @@ function setupEventListeners() {
     const saveSettingsBtn = document.getElementById('saveSettingsBtn');
     if (saveSettingsBtn) {
         saveSettingsBtn.addEventListener('click', saveSettings);
+    }
+
+    // Copy prompt button
+    const copyPromptBtn = document.getElementById('copyPromptBtn');
+    if (copyPromptBtn) {
+        copyPromptBtn.addEventListener('click', copyAIPrompt);
     }
 
     // Tab switching buttons (for upload cards buttons)
@@ -261,7 +278,7 @@ function setupDragAndDrop() {
             if (file.type === 'application/json') {
                 loadFlashcardsFromFile(file);
             } else {
-                showMessage('Please upload a JSON file!', 'error');
+                showMessage('📄 Please upload a JSON file!', 'error');
             }
         }
     });
@@ -287,7 +304,8 @@ function switchTab(tabName, event = null) {
                 (tabName === 'study' && tabText.includes('study')) ||
                 (tabName === 'quiz' && tabText.includes('quiz')) ||
                 (tabName === 'progress' && tabText.includes('analytics')) ||
-                (tabName === 'settings' && tabText.includes('settings'))) {
+                (tabName === 'settings' && tabText.includes('settings')) ||
+                (tabName === 'help' && tabText.includes('how to use'))) {
                 tab.classList.add('active');
             }
         });
@@ -306,7 +324,13 @@ function switchTab(tabName, event = null) {
 
 function showMessage(text, type) {
     const message = document.createElement('div');
-    message.className = type === 'error' ? 'error-message' : 'success-message';
+    if (type === 'error') {
+        message.className = 'error-message';
+    } else if (type === 'warning') {
+        message.className = 'warning-message';
+    } else {
+        message.className = 'success-message';
+    }
     message.textContent = text;
     
     document.body.appendChild(message);
@@ -333,11 +357,21 @@ function loadFlashcardsFromFile(file) {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            const data = JSON.parse(e.target.result);
+            const fileContent = e.target.result;
+            const data = JSON.parse(fileContent);
             
             if (!data.cards || !Array.isArray(data.cards)) {
                 throw new Error('Invalid JSON format - missing cards array');
             }
+            
+            // Check for duplicate upload
+            if (currentFileContent && currentFileContent === fileContent) {
+                showMessage('⚠️ No new content detected - these flashcards are already loaded!', 'warning');
+                return;
+            }
+            
+            // Store the current file content for future comparison
+            currentFileContent = fileContent;
             
             flashcards = data.cards.map(card => ({
                 ...card,
@@ -353,7 +387,7 @@ function loadFlashcardsFromFile(file) {
                 resetSession();
                 resetQuiz();
                 updateCurrentTopic(data.topic || 'Unknown Topic', data.description);
-                showMessage(`Successfully loaded ${flashcards.length} flashcards!`, 'success');
+                showMessage(`✅ Successfully loaded ${flashcards.length} flashcards!`, 'success');
                 
                 // Switch to study tab
                 switchTab('study');
@@ -361,12 +395,12 @@ function loadFlashcardsFromFile(file) {
             
         } catch (error) {
             console.error('JSON loading error:', error);
-            showMessage('Error loading JSON file: ' + error.message, 'error');
+            showMessage('❌ Error loading JSON file: ' + error.message, 'error');
         }
     };
     
     reader.onerror = function() {
-        showMessage('Error reading file', 'error');
+        showMessage('❌ Error reading file', 'error');
     };
     
     reader.readAsText(file);
@@ -462,21 +496,21 @@ function updateCard() {
         difficultyIndicator.textContent = card.difficulty.toUpperCase();
     }
     
-    // Reset card flip
+    // Reset card flip (only if not already reset by markAnswer)
     const flashcard = document.getElementById('flashcard');
-    if (flashcard) {
+    if (flashcard && isFlipped) {
         flashcard.classList.remove('flipped');
+        isFlipped = false;
     }
-    isFlipped = false;
     
-    // Update buttons
-    const correctBtn = document.getElementById('correctBtn');
-    const incorrectBtn = document.getElementById('incorrectBtn');
+    // Update next button for skipping (only show during active session)
     const nextBtn = document.getElementById('nextBtn');
-    
-    if (correctBtn) correctBtn.style.display = 'none';
-    if (incorrectBtn) incorrectBtn.style.display = 'none';
-    if (nextBtn) nextBtn.textContent = '🔄 Flip Card';
+    if (nextBtn && currentCardIndex > 0 && currentCardIndex < flashcards.length) {
+        nextBtn.textContent = '⏭️ Skip Card';
+        nextBtn.style.display = 'inline-block';
+    } else if (nextBtn) {
+        nextBtn.style.display = 'none';
+    }
     
     updateSessionStats();
 }
@@ -488,14 +522,17 @@ function flipCard() {
             flashcard.classList.toggle('flipped');
             isFlipped = !isFlipped;
             
-            if (isFlipped) {
-                const correctBtn = document.getElementById('correctBtn');
-                const incorrectBtn = document.getElementById('incorrectBtn');
-                const nextBtn = document.getElementById('nextBtn');
-                
-                if (correctBtn) correctBtn.style.display = 'inline-block';
-                if (incorrectBtn) incorrectBtn.style.display = 'inline-block';
-                if (nextBtn) nextBtn.style.display = 'none';
+            // Update next button based on card state
+            const nextBtn = document.getElementById('nextBtn');
+            if (nextBtn) {
+                if (isFlipped) {
+                    // Card is showing answer - hide the start/next button since buttons are on card
+                    nextBtn.style.display = 'none';
+                } else {
+                    // Card is showing question - show next button
+                    nextBtn.style.display = 'inline-block';
+                    nextBtn.textContent = currentCardIndex >= flashcards.length ? '🏁 Finish' : '▶️ Next Card';
+                }
             }
         }
     }
@@ -514,33 +551,46 @@ function markAnswer(isCorrect) {
         sessionStats.correct++;
     }
     
-    currentCardIndex++;
-    updateCard();
-    
-    // Safely hide buttons
-    const correctBtn = document.getElementById('correctBtn');
-    const incorrectBtn = document.getElementById('incorrectBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    
-    if (correctBtn) correctBtn.style.display = 'none';
-    if (incorrectBtn) incorrectBtn.style.display = 'none';
-    if (nextBtn) {
-        nextBtn.style.display = 'inline-block';
-        nextBtn.textContent = currentCardIndex >= flashcards.length ? '🏁 Finish' : '▶️ Next Card';
+    // Show feedback message
+    if (isCorrect) {
+        showMessage('✅ Correct! Moving to next card.', 'success');
+    } else {
+        showMessage('❌ Incorrect. Moving to next card.', 'error');
     }
+    
+    currentCardIndex++;
+    
+    // Reset card flip state first to prevent showing answer
+    const flashcard = document.getElementById('flashcard');
+    if (flashcard) {
+        flashcard.classList.remove('flipped');
+    }
+    isFlipped = false;
+    
+    // Add a small delay before updating card content to ensure flip animation completes
+    setTimeout(() => {
+        updateCard();
+    }, 300); // Slightly longer delay for smooth transition
 }
 
 function nextCard() {
     if (currentCardIndex === 0 && sessionStats.total === 0) {
         // Starting the session
-        const nextBtn = document.getElementById('nextBtn');
-        if (nextBtn) nextBtn.textContent = '🔄 Flip Card';
         updateCard();
-    } else if (isFlipped) {
-        // Show marking buttons if card is flipped but not answered
-        return;
+        const nextBtn = document.getElementById('nextBtn');
+        if (nextBtn) nextBtn.style.display = 'none'; // Hide next button, card click will handle flipping
     } else if (currentCardIndex < flashcards.length) {
-        flipCard();
+        // Move to next card without marking (skip functionality)
+        currentCardIndex++;
+        
+        // Reset card state
+        const flashcard = document.getElementById('flashcard');
+        if (flashcard) {
+            flashcard.classList.remove('flipped');
+        }
+        isFlipped = false;
+        
+        updateCard();
     } else {
         completeSession();
     }
@@ -636,6 +686,7 @@ function setQuizMode(mode, event = null) {
             const btnText = btn.textContent.toLowerCase();
             if ((mode === 'single' && btnText.includes('single')) ||
                 (mode === 'multiple' && btnText.includes('multiple')) ||
+                (mode === 'combination' && btnText.includes('combination')) ||
                 (mode === 'timed' && btnText.includes('timed'))) {
                 btn.classList.add('active');
             }
@@ -683,7 +734,9 @@ function setQuizMode(mode, event = null) {
         if (quizTimerElement) quizTimerElement.style.display = 'none';
         // Hide floating timer for non-timed modes
         const floatingTimer = document.getElementById('floatingTimer');
+        const endQuizMainBtn = document.getElementById('endQuizMainBtn');
         if (floatingTimer) floatingTimer.style.display = 'none';
+        if (endQuizMainBtn) endQuizMainBtn.style.display = 'none';
         if (timedQuizStart) timedQuizStart.style.display = 'none';
         if (quizContainer) quizContainer.style.display = 'block';
     }
@@ -801,7 +854,13 @@ function updateQuizQuestion() {
     
     const quizQuestion = document.getElementById('quizQuestion');
     if (quizQuestion) {
-        quizQuestion.textContent = `Question ${currentCardIndex + 1}: ${card.question}`;
+        // Determine question type for combination mode
+        let questionType = '';
+        if (quizMode === 'combination') {
+            const isMultipleChoice = card.correctChoices && card.correctChoices.length > 1;
+            questionType = isMultipleChoice ? ' 🔀 (Select all that apply)' : ' 🎯 (Select one)';
+        }
+        quizQuestion.textContent = `Question ${currentCardIndex + 1}${questionType}: ${card.question}`;
     }
     
     const optionsContainer = document.getElementById('quizOptions');
@@ -831,9 +890,11 @@ function updateQuizQuestion() {
     
     const submitBtn = document.getElementById('quizSubmitBtn');
     const nextBtn = document.getElementById('quizNextBtn');
+    const endQuizMainBtn = document.getElementById('endQuizMainBtn');
     
     if (submitBtn) submitBtn.style.display = 'inline-block';
     if (nextBtn) nextBtn.textContent = '▶️ Next Question';
+    if (endQuizMainBtn && quizMode === 'timed') endQuizMainBtn.style.display = 'inline-block';
     
     updateQuizStats();
     
@@ -854,7 +915,13 @@ function selectQuizOption(index, element) {
         return;
     }
     
-    if (quizMode === 'single') {
+    // Determine if current question should be single or multiple choice
+    const currentCard = flashcards[currentCardIndex];
+    const isMultipleChoice = (quizMode === 'multiple') || 
+                            (quizMode === 'combination' && currentCard.correctChoices && currentCard.correctChoices.length > 1) ||
+                            (quizMode === 'timed' && currentCard.correctChoices && currentCard.correctChoices.length > 1);
+    
+    if (!isMultipleChoice) {
         // Single choice - clear other selections
         document.querySelectorAll('.quiz-option').forEach(opt => {
             if (opt.classList) {
@@ -1163,7 +1230,9 @@ function completeQuiz() {
     });
     
     const submitBtn = document.getElementById('quizSubmitBtn');
+    const endQuizMainBtn = document.getElementById('endQuizMainBtn');
     if (submitBtn) submitBtn.style.display = 'none';
+    if (endQuizMainBtn) endQuizMainBtn.style.display = 'none';
     
     // Save quiz to progress
     const quizData = {
@@ -1220,6 +1289,76 @@ function completeQuiz() {
     
     updateProgressChart();
     updateProgressStats();
+}
+
+function endQuizEarly() {
+    // Show confirmation dialog
+    const confirmEnd = confirm(
+        'Are you sure you want to end the quiz early?\n\n' +
+        'You can restart the quiz anytime from the beginning.'
+    );
+    
+    if (confirmEnd) {
+        // Mark quiz as voluntarily ended
+        quizCompleted = true;
+        
+        // Clear timer if running
+        if (quizTimer) {
+            clearInterval(quizTimer);
+            quizTimer = null;
+            timerStarted = false;
+        }
+        
+        // Hide floating timer immediately
+        const floatingTimer = document.getElementById('floatingTimer');
+        if (floatingTimer) floatingTimer.style.display = 'none';
+        
+        // Hide main timer
+        const quizTimerElement = document.getElementById('quizTimer');
+        if (quizTimerElement) quizTimerElement.style.display = 'none';
+        
+        // Show message about early end
+        showMessage('🏁 Quiz ended early. Click "Retake Quiz" to start over.', 'success');
+        
+        // Show completion screen without saving progress
+        const quizComplete = document.getElementById('quizComplete');
+        const quizFinalResults = document.getElementById('quizFinalResults');
+        
+        if (quizComplete) quizComplete.style.display = 'block';
+        if (quizFinalResults) {
+            quizFinalResults.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">⏹️</div>
+                        <div class="stat-label">Quiz Ended Early</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${quizStats.correct}/${quizStats.total}</div>
+                        <div class="stat-label">Questions Answered</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${quizStats.total > 0 ? (quizStats.correct / quizStats.total * 100).toFixed(1) : 0}%</div>
+                        <div class="stat-label">Accuracy So Far</div>
+                    </div>
+                </div>
+                <p style="text-align: center; margin-top: 16px; color: rgba(228, 228, 231, 0.7);">
+                    Quiz was ended voluntarily • No progress saved
+                </p>
+            `;
+        }
+        
+        // Hide quiz buttons
+        const submitBtn = document.getElementById('quizSubmitBtn');
+        const endQuizMainBtn = document.getElementById('endQuizMainBtn');
+        if (submitBtn) submitBtn.style.display = 'none';
+        if (endQuizMainBtn) endQuizMainBtn.style.display = 'none';
+        
+        // Disable quiz options
+        document.querySelectorAll('.quiz-option').forEach(opt => {
+            opt.style.pointerEvents = 'none';
+            opt.style.opacity = '0.6';
+        });
+    }
 }
 
 function restartQuiz() {
@@ -1281,7 +1420,7 @@ function downloadQuizResults() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    showMessage('Quiz results downloaded successfully!', 'success');
+    showMessage('📥 Quiz results downloaded successfully!', 'success');
 }
 
 // ==========================================================================
@@ -1400,7 +1539,7 @@ function exportProgress() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    showMessage('Progress data exported successfully!', 'success');
+    showMessage('📤 Progress data exported successfully!', 'success');
 }
 
 function importProgress(event) {
@@ -1438,12 +1577,12 @@ function importProgress(event) {
                 updateProgressChart();
                 updateProgressStats();
                 
-                showMessage(`Successfully imported ${importData.progressData.length} sessions!`, 'success');
+                showMessage(`📥 Successfully imported ${importData.progressData.length} sessions!`, 'success');
             } else {
                 throw new Error('Invalid progress file format');
             }
         } catch (error) {
-            showMessage('Error importing progress: ' + error.message, 'error');
+            showMessage('❌ Error importing progress: ' + error.message, 'error');
         }
     };
     reader.readAsText(file);
@@ -1458,7 +1597,7 @@ function clearProgress() {
         localStorage.removeItem('flashcardProgress');
         updateProgressChart();
         updateProgressStats();
-        showMessage('All progress data cleared successfully!', 'success');
+        showMessage('🗑️ All progress data cleared successfully!', 'success');
     }
 }
 
@@ -1486,7 +1625,7 @@ function saveSettings() {
     settings.timePerQuestion = parseInt(timePerQuestion.value) || 30;
     
     localStorage.setItem('flashcardSettings', JSON.stringify(settings));
-    showMessage('Configuration saved successfully!', 'success');
+    showMessage('💾 Configuration saved successfully!', 'success');
     
     // Update timer display if in quiz mode and timed mode
     if (quizMode === 'timed') {
@@ -1500,4 +1639,41 @@ function saveSettings() {
     
     // Update progress chart if threshold changed
     updateProgressChart();
+}
+
+// ==========================================================================
+// Utility Functions
+// ==========================================================================
+
+function copyAIPrompt() {
+    const promptText = document.getElementById('aiPromptText');
+    if (promptText) {
+        // Create a temporary textarea to copy the text
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = promptText.textContent;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        
+        try {
+            document.execCommand('copy');
+            showMessage('📋 AI prompt copied to clipboard!', 'success');
+            
+            // Temporarily change button text
+            const copyBtn = document.getElementById('copyPromptBtn');
+            if (copyBtn) {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✅ Copied!';
+                copyBtn.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.background = '';
+                }, 2000);
+            }
+        } catch (err) {
+            showMessage('❌ Failed to copy. Please select and copy manually.', 'error');
+        }
+        
+        document.body.removeChild(tempTextArea);
+    }
 }

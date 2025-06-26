@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' https:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' https:;">
     <title>FlashMaster - Interactive Study Cards & Quizzes</title>
     
     <!-- External Dependencies -->
@@ -28,6 +28,7 @@
             <button class="nav-tab" data-tab="quiz">🧪 Quiz</button>
             <button class="nav-tab" data-tab="progress">📊 Analytics</button>
             <button class="nav-tab" data-tab="settings">⚙️ Settings</button>
+            <button class="nav-tab" data-tab="help">❓ How To Use</button>
         </div>
 
         <!-- Upload Tab -->
@@ -108,16 +109,19 @@
                         <div class="card-face card-front" id="cardFront">
                             <div id="questionText">Ready to start learning?</div>
                             <div class="difficulty-indicator" id="difficultyIndicator"></div>
+                            <div class="card-hint">Click to reveal answer</div>
                         </div>
                         <div class="card-face card-back" id="cardBack">
                             <div id="answerText">Answer appears here</div>
+                            <div class="card-controls">
+                                <button class="btn btn-incorrect card-btn" id="incorrectBtn">❌ Incorrect</button>
+                                <button class="btn btn-correct card-btn" id="correctBtn">✅ Correct</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="controls">
-                    <button class="btn btn-incorrect" id="incorrectBtn" style="display: none;">❌ Incorrect</button>
-                    <button class="btn btn-correct" id="correctBtn" style="display: none;">✅ Correct</button>
                     <button class="btn btn-next" id="nextBtn">▶️ Start</button>
                 </div>
 
@@ -141,6 +145,7 @@
                 <div class="mode-selector">
                     <button class="mode-btn active" data-quiz-mode="single">🎯 Single Choice</button>
                     <button class="mode-btn" data-quiz-mode="multiple">✅ Multiple Choice</button>
+                    <button class="mode-btn" data-quiz-mode="combination">🔀 Combination</button>
                     <button class="mode-btn" data-quiz-mode="timed">⏱️ Timed Quiz</button>
                 </div>
 
@@ -193,6 +198,7 @@
                     <div class="controls">
                         <button class="btn btn-next" id="quizSubmitBtn" style="display: none;">Submit Answer</button>
                         <button class="btn btn-next" id="quizNextBtn">▶️ Start Quiz</button>
+                        <button class="btn btn-secondary" id="endQuizMainBtn" style="display: none;">🏁 End Quiz</button>
                     </div>
                 </div>
 
@@ -285,6 +291,168 @@
                 <button class="btn btn-next" id="saveSettingsBtn">💾 Save Configuration</button>
             </div>
         </div>
+
+        <!-- Help Tab -->
+        <div id="help" class="tab-content">
+            <div class="upload-section">
+                <h2>❓ How To Use FlashMaster</h2>
+                <p>Welcome! FlashMaster makes studying with flashcards easy and effective. Here's how to get started:</p>
+            </div>
+
+            <div class="stats">
+                <h2>📁 Step 1: Upload Your Cards</h2>
+                <p><strong>What to do:</strong> Click the "Upload" tab and drag your JSON file onto the upload area.</p>
+                <p><strong>File format:</strong> Your file should be a JSON file with questions, answers, and multiple choice options.</p>
+                <p><strong>Example:</strong> See the sample format shown in the upload section - copy it to create your own cards!</p>
+            </div>
+
+            <div class="stats">
+                <h2>🎯 Step 2: Study Mode</h2>
+                <p><strong>Flashcard Mode:</strong> Click through cards one by one. Read the question, think of your answer, then flip the card to see if you got it right.</p>
+                <p><strong>Mark yourself:</strong> Click "Correct" or "Incorrect" to track your progress.</p>
+                <p><strong>Your progress:</strong> Watch the progress bar fill up as you go through all cards.</p>
+            </div>
+
+            <div class="stats">
+                <h2>🧪 Step 3: Test Yourself</h2>
+                <p><strong>Quiz modes:</strong> Choose from Single Choice, Multiple Choice, Combination, or Timed Quiz.</p>
+                <p><strong>Combination mode:</strong> Automatically uses single choice for questions with one correct answer, and multiple choice for questions with several correct answers.</p>
+                <p><strong>Timed Quiz:</strong> Race against the clock! You get time per question (set in Settings).</p>
+                <p><strong>Floating timer:</strong> During timed quizzes, a glass timer floats on your screen - click the ✕ to end early if needed.</p>
+                <p><strong>Results:</strong> Get detailed results showing your accuracy and time used.</p>
+            </div>
+
+            <div class="stats">
+                <h2>📊 Step 4: Track Progress</h2>
+                <p><strong>Analytics:</strong> View charts showing your performance over time.</p>
+                <p><strong>Export/Import:</strong> Save your progress data or load it on another device.</p>
+                <p><strong>Lifetime stats:</strong> See total sessions, quizzes taken, and overall accuracy.</p>
+            </div>
+
+            <div class="stats">
+                <h2>⚙️ Step 5: Customize Settings</h2>
+                <p><strong>Passing threshold:</strong> Set the minimum score needed to "pass" a session (default: 70%).</p>
+                <p><strong>Card randomization:</strong> Choose whether cards appear in random order or sequential.</p>
+                <p><strong>Time per question:</strong> Adjust how much time you get for each question in timed quizzes.</p>
+            </div>
+
+            <div class="upload-section">
+                <h2>💡 Pro Tips</h2>
+                <div style="text-align: left; max-width: 600px; margin: 0 auto;">
+                    <p>• <strong>Start with flashcards</strong> to learn the material, then test with quizzes</p>
+                    <p>• <strong>Use combination mode</strong> for realistic mixed question types</p>
+                    <p>• <strong>Use timed quizzes</strong> to simulate exam conditions</p>
+                    <p>• <strong>Review your analytics</strong> to see which topics need more work</p>
+                    <p>• <strong>Mix difficulty levels</strong> in your JSON file (easy, medium, hard, expert)</p>
+                    <p>• <strong>Keep sessions short</strong> - 10-15 cards work better than 50+ at once</p>
+                </div>
+            </div>
+
+            <div class="stats">
+                <h2>🤖 AI Assistant Tips</h2>
+                <p><strong>Convert PDFs to flashcards:</strong> Got study material in PDF format? Use this prompt with ChatGPT, Claude, or any AI assistant:</p>
+                
+                <div class="json-format">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3>📋 Copy this prompt:</h3>
+                        <button class="btn btn-secondary" id="copyPromptBtn" style="padding: 8px 16px; font-size: 14px;">📋 Copy Prompt</button>
+                    </div>
+                    <pre id="aiPromptText" style="white-space: pre-wrap; font-size: 12px;">Please convert the following PDF content into a JSON flashcard format for my study app.
+
+CRITICAL REQUIREMENTS:
+• Randomize correct answer positions - Do NOT put all correct answers in position 0. Distribute them randomly across positions 0, 1, 2, and 3.
+• Include multiple-choice questions - Create 30-40% of questions where multiple answers are correct (use "correctChoices": [0, 2] format).
+• Vary question types - Mix definitional, calculation, application, comparison, and scenario-based questions.
+• Make plausible wrong answers that seem realistic but are clearly incorrect.
+
+Language Guidelines:
+❌ Avoid: "The document says..." "According to the text..." "The material mentions..."
+✅ Use instead: "In system design..." "Common examples include..." "Key principles are..." "This concept refers to..."
+• Write answers as direct explanations, not references to source material
+• Make it sound conversational and educational, not robotic or formal
+• Use active voice and engaging language that helps learning
+
+Answer Position Guidelines:
+• Distribute correct answers roughly equally: 25% in position 0, 25% in position 1, 25% in position 2, 25% in position 3
+• For multiple-choice questions, use format like "correctChoices": [0, 2, 3] for questions with multiple correct answers
+• Make "Select all that apply" questions for topics with multiple valid examples/methods/types
+
+Question Type Distribution:
+• 60-70% single correct answer (correctChoices: [X])
+• 30-40% multiple correct answers (correctChoices: [X, Y, Z])
+• Include calculations, definitions, applications, and scenario-based questions
+• Difficulty levels: 30% easy, 40% medium, 20% hard, 10% expert
+
+JSON Structure:
+{
+  "topic": "Study Topic Name",
+  "description": "Brief description of the material",
+  "cards": [
+    {
+      "id": 1,
+      "question": "Which programming concept allows functions to call themselves?",
+      "answer": "Recursion is a powerful programming technique where a function calls itself to solve smaller instances of the same problem. It's particularly useful for problems that can be broken down into similar sub-problems.",
+      "difficulty": "medium",
+      "choices": [
+        "Iteration",
+        "Recursion",
+        "Polymorphism", 
+        "Encapsulation"
+      ],
+      "correctChoices": [1]
+    },
+    {
+      "id": 2,
+      "question": "Which of the following are object-oriented programming principles? (Select all that apply)",
+      "answer": "Object-oriented programming is built on three core principles: Encapsulation (bundling data and methods), Inheritance (creating new classes based on existing ones), and Polymorphism (objects behaving differently based on their type).",
+      "difficulty": "easy",
+      "choices": [
+        "Encapsulation",
+        "Recursion",
+        "Inheritance",
+        "Polymorphism"
+      ],
+      "correctChoices": [0, 2, 3]
+    },
+    {
+      "id": 3,
+      "question": "What is the time complexity of binary search?",
+      "answer": "Binary search achieves O(log n) time complexity by repeatedly dividing the search space in half. Each comparison eliminates half of the remaining elements, making it incredibly efficient for large sorted datasets.",
+      "difficulty": "hard",
+      "choices": [
+        "O(n)",
+        "O(n²)",
+        "O(1)",
+        "O(log n)"
+      ],
+      "correctChoices": [3]
+    }
+  ]
+}
+
+FINAL CHECKLIST:
+✓ Correct answers distributed across ALL positions (0, 1, 2, 3)
+✓ 30-40% multiple-choice questions with 2-3 correct answers
+✓ Mix of question types (definition, calculation, application, scenario)
+✓ Realistic but clearly wrong distractors
+✓ Proper difficulty distribution (30% easy, 40% medium, 20% hard, 10% expert)
+✓ Conversational, educational language (avoid "the document says...")
+✓ Direct explanations that teach concepts, not reference source material
+
+PDF Content:
+[Paste your PDF text here]</pre>
+                </div>
+                
+                <p><strong>Pro tips:</strong></p>
+                <div style="text-align: left; max-width: 600px; margin: 0 auto;">
+                    <p>• Copy small sections (1-2 pages) at a time for better results</p>
+                    <p>• This improved prompt includes specific percentages and distribution guidelines</p>
+                    <p>• Uses a final checklist to ensure AI follows all requirements</p>
+                    <p>• If AI still clusters answers in one position, say: "Follow the 25% distribution rule for answer positions"</p>
+                    <p>• For more variety, add: "Include more calculation and scenario-based questions"</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Floating Timer Component -->
@@ -304,6 +472,7 @@
             <div class="timer-content">
                 <div class="timer-time" id="floatingTimeLeft">00:00</div>
                 <div class="timer-label">Left</div>
+                <button class="timer-end-btn" id="endQuizBtn" title="End Quiz Early">✕</button>
             </div>
         </div>
     </div>
