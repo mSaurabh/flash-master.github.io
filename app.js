@@ -7,6 +7,42 @@
 // Global Variables
 // ==========================================================================
 
+// Helper function to format time in MM:SS format
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+// Update floating timer with circular progress
+function updateFloatingTimer(timeLeft, totalTime) {
+    const floatingTimeLeft = document.getElementById('floatingTimeLeft');
+    const timerCircle = document.getElementById('timerCircle');
+    
+    if (floatingTimeLeft) {
+        floatingTimeLeft.textContent = formatTime(Math.max(0, timeLeft));
+    }
+    
+    if (timerCircle) {
+        const percentage = Math.max(0, (timeLeft / totalTime) * 100);
+        const dashOffset = 283 - (283 * percentage / 100);
+        timerCircle.style.strokeDashoffset = dashOffset;
+        
+        // Change color based on remaining time
+        if (percentage > 60) {
+            timerCircle.style.stroke = '#10B981'; // Green
+        } else if (percentage > 30) {
+            timerCircle.style.stroke = '#FFD700'; // Yellow
+        } else {
+            timerCircle.style.stroke = '#EF4444'; // Red
+        }
+    }
+}
+
+// ==========================================================================
+// Global Variables
+// ==========================================================================
+
 let flashcards = [];
 let currentCardIndex = 0;
 let isFlipped = false;
@@ -33,7 +69,7 @@ let quizStats = {
 };
 
 let progressData = JSON.parse(localStorage.getItem('flashcardProgress') || '[]');
-let settings = JSON.parse(localStorage.getItem('flashcardSettings') || '{"passingThreshold": 70, "shuffleCards": true, "quizTimeLimit": 60}');
+let settings = JSON.parse(localStorage.getItem('flashcardSettings') || '{"passingThreshold": 70, "shuffleCards": true, "timePerQuestion": 30}');
 
 // ==========================================================================
 // Initialization
@@ -624,7 +660,9 @@ function setQuizMode(mode, event = null) {
         if (timedQuizStart) {
             timedQuizStart.style.display = 'block';
             const durationSpan = document.getElementById('timedQuizDuration');
-            if (durationSpan) durationSpan.textContent = settings.quizTimeLimit || 60;
+            const totalQuestions = flashcards.filter(card => card && card.choices && card.correctChoices).length;
+            const totalTime = totalQuestions * (parseInt(settings.timePerQuestion) || 30);
+            if (durationSpan) durationSpan.textContent = `${formatTime(totalTime)} (${settings.timePerQuestion || 30}s per question)`;
         }
         if (quizContainer) quizContainer.style.display = 'none';
         
@@ -633,7 +671,9 @@ function setQuizMode(mode, event = null) {
         const timerProgressFill = document.getElementById('timerProgressFill');
         
         if (timeLeftElement) {
-            timeLeftElement.textContent = settings.quizTimeLimit || 60;
+            const totalQuestions = flashcards.filter(card => card && card.choices && card.correctChoices).length;
+            const totalTime = totalQuestions * (parseInt(settings.timePerQuestion) || 30);
+            timeLeftElement.textContent = formatTime(totalTime);
         }
         if (timerProgressFill) {
             timerProgressFill.style.width = '100%';
@@ -642,6 +682,9 @@ function setQuizMode(mode, event = null) {
     } else {
         // Show regular quiz, hide timed quiz elements
         if (quizTimerElement) quizTimerElement.style.display = 'none';
+        // Hide floating timer for non-timed modes
+        const floatingTimer = document.getElementById('floatingTimer');
+        if (floatingTimer) floatingTimer.style.display = 'none';
         if (timedQuizStart) timedQuizStart.style.display = 'none';
         if (quizContainer) quizContainer.style.display = 'block';
     }
@@ -666,7 +709,9 @@ function resetQuiz() {
     selectedAnswers = [];
     timerStarted = false;
     quizCompleted = false;
-    timeLeft = parseInt(settings.quizTimeLimit) || 60;
+    // Calculate total time: number of questions * time per question
+    const totalQuestions = flashcards.filter(card => card && card.choices && card.correctChoices).length;
+    timeLeft = totalQuestions * (parseInt(settings.timePerQuestion) || 30);
     
     quizStats = {
         correct: 0,
@@ -699,7 +744,9 @@ function resetQuiz() {
         if (timedQuizStart) {
             timedQuizStart.style.display = 'block';
             const durationSpan = document.getElementById('timedQuizDuration');
-            if (durationSpan) durationSpan.textContent = settings.quizTimeLimit || 60;
+            const totalQuestions = flashcards.filter(card => card && card.choices && card.correctChoices).length;
+            const totalTime = totalQuestions * (parseInt(settings.timePerQuestion) || 30);
+            if (durationSpan) durationSpan.textContent = `${formatTime(totalTime)} (${settings.timePerQuestion || 30}s per question)`;
         }
         if (quizContainer) quizContainer.style.display = 'none';
         
@@ -708,7 +755,11 @@ function resetQuiz() {
         const timerProgressFill = document.getElementById('timerProgressFill');
         const quizTimerElement = document.getElementById('quizTimer');
         
-        if (timeLeftElement) timeLeftElement.textContent = settings.quizTimeLimit || 60;
+        if (timeLeftElement) {
+            const totalQuestions = flashcards.filter(card => card && card.choices && card.correctChoices).length;
+            const totalTime = totalQuestions * (parseInt(settings.timePerQuestion) || 30);
+            timeLeftElement.textContent = formatTime(totalTime);
+        }
         if (timerProgressFill) {
             timerProgressFill.style.width = '100%';
             timerProgressFill.style.background = 'linear-gradient(90deg, #10B981 0%, #FFD700 100%)';
@@ -929,6 +980,10 @@ function startTimedQuiz() {
     if (quizContainer) quizContainer.style.display = 'block';
     if (quizTimerElement) quizTimerElement.style.display = 'block';
     
+    // Show floating timer
+    const floatingTimer = document.getElementById('floatingTimer');
+    if (floatingTimer) floatingTimer.style.display = 'block';
+    
     // Reset quiz state
     quizCompleted = false;
     currentCardIndex = 0;
@@ -952,8 +1007,9 @@ function startEntireQuizTimer() {
         clearInterval(quizTimer);
     }
     
-    // Get the current time limit from settings - this is for the ENTIRE quiz
-    timeLeft = parseInt(settings.quizTimeLimit) || 60;
+    // Calculate total time: number of questions * time per question
+    const totalQuestions = flashcards.filter(card => card && card.choices && card.correctChoices).length;
+    timeLeft = totalQuestions * (parseInt(settings.timePerQuestion) || 30);
     const totalTime = timeLeft;
     timerStarted = true;
     
@@ -962,7 +1018,7 @@ function startEntireQuizTimer() {
     
     // Initial display - start at full
     if (timeLeftElement) {
-        timeLeftElement.textContent = timeLeft;
+        timeLeftElement.textContent = formatTime(timeLeft);
     }
     if (timerProgressFill) {
         timerProgressFill.style.width = '100%'; // Start full
@@ -976,8 +1032,11 @@ function startEntireQuizTimer() {
         
         // Update time display
         if (timeLeftElement) {
-            timeLeftElement.textContent = Math.max(0, timeLeft);
+            timeLeftElement.textContent = formatTime(Math.max(0, timeLeft));
         }
+        
+        // Update floating timer
+        updateFloatingTimer(timeLeft, totalTime);
         
         // Update progress bar - EMPTIES as time runs out
         if (timerProgressFill) {
@@ -1068,6 +1127,10 @@ function completeQuiz() {
         console.log('Timer cleared on quiz completion'); // Debug log
     }
     
+    // Hide floating timer
+    const floatingTimer = document.getElementById('floatingTimer');
+    if (floatingTimer) floatingTimer.style.display = 'none';
+    
     quizStats.endTime = new Date().toISOString();
     const accuracy = quizStats.total > 0 ? (quizStats.correct / quizStats.total * 100).toFixed(1) : 0;
     const passed = parseFloat(accuracy) >= settings.passingThreshold;
@@ -1142,7 +1205,7 @@ function completeQuiz() {
                     <div class="stat-label">Correct Answers</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">${quizData.duration}s</div>
+                    <div class="stat-number">${formatTime(quizData.duration)}</div>
                     <div class="stat-label">Time Used</div>
                 </div>
                 <div class="stat-card">
@@ -1407,21 +1470,21 @@ function clearProgress() {
 function loadSettings() {
     const passingThreshold = document.getElementById('passingThreshold');
     const shuffleCards = document.getElementById('shuffleCards');
-    const quizTimeLimit = document.getElementById('quizTimeLimit');
+    const timePerQuestion = document.getElementById('timePerQuestion');
     
     if (passingThreshold) passingThreshold.value = settings.passingThreshold;
     if (shuffleCards) shuffleCards.value = settings.shuffleCards.toString();
-    if (quizTimeLimit) quizTimeLimit.value = settings.quizTimeLimit || 60;
+    if (timePerQuestion) timePerQuestion.value = settings.timePerQuestion || 30;
 }
 
 function saveSettings() {
     const passingThreshold = document.getElementById('passingThreshold');
     const shuffleCards = document.getElementById('shuffleCards');
-    const quizTimeLimit = document.getElementById('quizTimeLimit');
+    const timePerQuestion = document.getElementById('timePerQuestion');
     
     settings.passingThreshold = parseInt(passingThreshold.value);
     settings.shuffleCards = shuffleCards.value === 'true';
-    settings.quizTimeLimit = parseInt(quizTimeLimit.value) || 60;
+    settings.timePerQuestion = parseInt(timePerQuestion.value) || 30;
     
     localStorage.setItem('flashcardSettings', JSON.stringify(settings));
     showMessage('Configuration saved successfully!', 'success');
@@ -1430,7 +1493,9 @@ function saveSettings() {
     if (quizMode === 'timed') {
         const timeLeftElement = document.getElementById('timeLeft');
         if (timeLeftElement && !quizTimer) { // Only update if timer isn't running
-            timeLeftElement.textContent = settings.quizTimeLimit;
+            const totalQuestions = flashcards.filter(card => card && card.choices && card.correctChoices).length;
+            const totalTime = totalQuestions * (parseInt(settings.timePerQuestion) || 30);
+            timeLeftElement.textContent = formatTime(totalTime);
         }
     }
     

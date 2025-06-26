@@ -34,17 +34,37 @@ body {
     padding: 40px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    animation: headerGlow 6s ease-in-out infinite;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(0, 245, 255, 0.03), transparent);
+    animation: headerSweep 8s linear infinite;
+    pointer-events: none;
 }
 
 .logo {
     font-size: 3.5em;
     font-weight: 800;
     background: linear-gradient(135deg, #00F5FF 0%, #FFD700 25%, #FF6B9D 50%, #C471ED 75%, #12D8FA 100%);
+    background-size: 300% 300%;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 15px;
     letter-spacing: -2px;
+    animation: gradientShift 3s ease-in-out infinite, logoFloat 4s ease-in-out infinite;
+    position: relative;
+    display: inline-block;
+    text-shadow: 0 0 30px rgba(0, 245, 255, 0.3);
 }
 
 .subtitle {
@@ -52,6 +72,9 @@ body {
     font-size: 1.3em;
     margin-bottom: 25px;
     font-weight: 400;
+    animation: subtitleFade 4s ease-in-out infinite alternate;
+    position: relative;
+    z-index: 1;
 }
 
 /* Navigation */
@@ -640,6 +663,150 @@ h3 {
     }
 }
 
+/* Modern animated logo and header effects */
+@keyframes gradientShift {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes logoFloat {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes headerGlow {
+    0%, 100% {
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.3),
+            0 0 20px rgba(0, 245, 255, 0.1);
+    }
+    50% {
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.3),
+            0 0 40px rgba(0, 245, 255, 0.2),
+            inset 0 0 20px rgba(255, 215, 0, 0.05);
+    }
+}
+
+@keyframes headerSweep {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+@keyframes subtitleFade {
+    0% {
+        opacity: 0.7;
+        transform: translateY(0px);
+    }
+    100% {
+        opacity: 0.9;
+        transform: translateY(-3px);
+    }
+}
+
+/* Floating Timer Component */
+.floating-timer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    animation: floatIn 0.5s ease-out;
+}
+
+.timer-circle {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 50%;
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(0, 245, 255, 0.3);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 0 20px rgba(0, 245, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.timer-circle:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(0, 245, 255, 0.3);
+}
+
+.timer-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.timer-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 3;
+}
+
+.timer-progress {
+    fill: none;
+    stroke: #00F5FF;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s ease, stroke 0.3s ease;
+    filter: drop-shadow(0 0 8px rgba(0, 245, 255, 0.5));
+}
+
+.timer-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+}
+
+.timer-time {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.timer-label {
+    font-size: 8px;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+@keyframes floatIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
@@ -674,5 +841,24 @@ h3 {
     .nav-tab {
         padding: 12px 20px;
         font-size: 14px;
+    }
+    
+    /* Mobile floating timer adjustments */
+    .floating-timer {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .timer-circle {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .timer-time {
+        font-size: 10px;
+    }
+    
+    .timer-label {
+        font-size: 7px;
     }
 }

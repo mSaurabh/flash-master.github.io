@@ -171,7 +171,7 @@
                 </div>
 
                 <div id="quizTimer" class="quiz-timer" style="display: none;">
-                    ⏱️ Time Remaining: <span id="timeLeft">60</span>s
+                    ⏱️ Time Remaining: <span id="timeLeft">00:00</span>
                     <div class="timer-progress-bar">
                         <div class="timer-progress-fill" id="timerProgressFill" style="width: 100%"></div>
                     </div>
@@ -270,9 +270,9 @@
                 </div>
 
                 <div class="setting-group">
-                    <label class="setting-label" for="quizTimeLimit">⏱️ Quiz Timer (seconds)</label>
-                    <input type="number" id="quizTimeLimit" class="setting-input" min="10" max="300" value="60">
-                    <p style="margin-top: 12px; color: rgba(228, 228, 231, 0.7);">Time limit for timed quiz mode</p>
+                    <label class="setting-label" for="timePerQuestion">⏱️ Time Per Question (seconds)</label>
+                    <input type="number" id="timePerQuestion" class="setting-input" min="5" max="120" value="30">
+                    <p style="margin-top: 12px; color: rgba(228, 228, 231, 0.7);">Time allocated per question in timed quiz mode</p>
                 </div>
                 
                 <div class="setting-group">
@@ -283,6 +283,20 @@
                 </div>
                 
                 <button class="btn btn-next" id="saveSettingsBtn">💾 Save Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Timer Component -->
+    <div id="floatingTimer" class="floating-timer" style="display: none;">
+        <div class="timer-circle">
+            <svg class="timer-svg" viewBox="0 0 100 100">
+                <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+                <circle class="timer-progress" cx="50" cy="50" r="45" id="timerCircle"></circle>
+            </svg>
+            <div class="timer-content">
+                <div class="timer-time" id="floatingTimeLeft">00:00</div>
+                <div class="timer-label">Left</div>
             </div>
         </div>
     </div>
