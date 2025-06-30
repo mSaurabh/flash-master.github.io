@@ -1061,3 +1061,131 @@ h3 {
         text-align: center;
     }
 }
+
+.ai-footer {
+background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+border-top: 3px solid #007bff;
+padding: 2rem 1rem 1rem;
+margin-top: 3rem;
+font-family: -apple-system, BlinkMacSystemFont, ‘Segoe UI’, system-ui, sans-serif;
+color: #495057;
+line-height: 1.6;
+}
+
+.footer-container {
+max-width: 1200px;
+margin: 0 auto;
+}
+
+.warning-section {
+background: #fff3cd;
+border: 1px solid #ffeaa7;
+border-radius: 8px;
+padding: 1.5rem;
+margin-bottom: 2rem;
+box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.warning-title {
+color: #856404;
+font-size: 1.1rem;
+font-weight: 600;
+margin-bottom: 1rem;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+
+.warning-icon {
+font-size: 1.2rem;
+}
+
+.warning-content {
+color: #6c5700;
+font-size: 0.95rem;
+}
+
+.warning-list {
+margin: 1rem 0;
+padding-left: 1.5rem;
+}
+
+.warning-list li {
+margin-bottom: 0.5rem;
+}
+
+.creator-section {
+display: grid;
+grid-template-columns: 1fr auto;
+gap: 2rem;
+align-items: center;
+padding-top: 1.5rem;
+border-top: 1px solid #dee2e6;
+}
+
+.creator-info h3 {
+color: #343a40;
+font-size: 1.1rem;
+margin-bottom: 0.5rem;
+font-weight: 600;
+}
+
+.creator-info p {
+margin-bottom: 0.5rem;
+font-size: 0.9rem;
+}
+
+.contact-links {
+display: flex;
+gap: 1rem;
+flex-wrap: wrap;
+}
+
+.contact-links a {
+color: #007bff;
+text-decoration: none;
+padding: 0.3rem 0.8rem;
+border: 1px solid #007bff;
+border-radius: 4px;
+font-size: 0.85rem;
+transition: all 0.2s ease;
+}
+
+.contact-links a:hover {
+background: #007bff;
+color: white;
+}
+
+.disclaimer {
+text-align: center;
+font-size: 0.8rem;
+color: #6c757d;
+margin-top: 1.5rem;
+padding-top: 1rem;
+border-top: 1px solid #dee2e6;
+}
+
+@media (max-width: 768px) {
+.creator-section {
+grid-template-columns: 1fr;
+text-align: center;
+}
+
+```
+.contact-links {
+    justify-content: center;
+}
+
+.ai-footer {
+    padding: 1.5rem 1rem;
+}
+```
+
+}
+
+.highlight {
+background: #e3f2fd;
+padding: 0.2rem 0.4rem;
+border-radius: 3px;
+font-weight: 500;
+}
