@@ -101,8 +101,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    // Navigation tabs
-    document.querySelectorAll('.nav-tab').forEach(tab => {
+    // Navigation tabs (exclude disclaimer button)
+    document.querySelectorAll('.nav-tab:not([data-no-tab])').forEach(tab => {
         tab.addEventListener('click', function(e) {
             const tabName = this.getAttribute('data-tab');
             switchTab(tabName, e);
@@ -244,11 +244,72 @@ function setupEventListeners() {
         copyPromptBtn.addEventListener('click', copyAIPrompt);
     }
 
+    // Disclaimer modal functionality
+    const disclaimerBtn = document.getElementById('disclaimerBtn');
+    const disclaimerModal = document.getElementById('disclaimerModal');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    
+    if (disclaimerBtn && disclaimerModal) {
+        // Show modal when disclaimer icon is clicked
+        disclaimerBtn.addEventListener('click', function() {
+            disclaimerModal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        });
+        
+        // Close modal when X button is clicked
+        if (modalCloseBtn) {
+            modalCloseBtn.addEventListener('click', function() {
+                disclaimerModal.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            });
+        }
+        
+        // Close modal when clicking outside the modal content
+        disclaimerModal.addEventListener('click', function(e) {
+            if (e.target === disclaimerModal) {
+                disclaimerModal.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && disclaimerModal.style.display === 'block') {
+                disclaimerModal.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            }
+        });
+    }
+
     // Tab switching buttons (for upload cards buttons)
     document.querySelectorAll('[data-tab]:not(.nav-tab)').forEach(btn => {
         btn.addEventListener('click', function(e) {
             const tabName = this.getAttribute('data-tab');
             switchTab(tabName, e);
+        });
+    });
+
+    // Format toggle functionality
+    document.querySelectorAll('.format-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const content = document.getElementById(targetId);
+            const icon = this.querySelector('.toggle-icon');
+            
+            if (content && icon) {
+                // Toggle the content
+                content.classList.toggle('collapsed');
+                
+                // Toggle the button expanded state and icon rotation
+                this.classList.toggle('expanded');
+                
+                // Update icon
+                if (content.classList.contains('collapsed')) {
+                    icon.textContent = '▶';
+                } else {
+                    icon.textContent = '▼';
+                }
+            }
         });
     });
 }
@@ -289,15 +350,15 @@ function setupDragAndDrop() {
 // ==========================================================================
 
 function switchTab(tabName, event = null) {
-    // Update nav tabs
-    document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+    // Update nav tabs (exclude disclaimer button)
+    document.querySelectorAll('.nav-tab:not([data-no-tab])').forEach(tab => tab.classList.remove('active'));
     
     // If called from an event, use event.target, otherwise find the tab by content
     if (event && event.target) {
         event.target.classList.add('active');
     } else {
-        // Find the correct nav tab based on the tab name
-        const navTabs = document.querySelectorAll('.nav-tab');
+        // Find the correct nav tab based on the tab name (exclude disclaimer button)
+        const navTabs = document.querySelectorAll('.nav-tab:not([data-no-tab])');
         navTabs.forEach(tab => {
             const tabText = tab.textContent.toLowerCase();
             if ((tabName === 'upload' && tabText.includes('upload')) ||
@@ -360,8 +421,23 @@ function loadFlashcardsFromFile(file) {
             const fileContent = e.target.result;
             const data = JSON.parse(fileContent);
             
-            if (!data.cards || !Array.isArray(data.cards)) {
-                throw new Error('Invalid JSON format - missing cards array');
+            // Support both old format (cards array) and new format (flashcards + quizzes arrays)
+            let allCards = [];
+            if (data.cards && Array.isArray(data.cards)) {
+                // Old format - backwards compatibility
+                allCards = data.cards;
+            } else if ((data.flashcards && Array.isArray(data.flashcards)) || (data.quizzes && Array.isArray(data.quizzes))) {
+                // New format - combine flashcards and quizzes
+                allCards = [
+                    ...(data.flashcards || []),
+                    ...(data.quizzes || [])
+                ];
+            } else {
+                throw new Error('Invalid JSON format - missing cards, flashcards, or quizzes array');
+            }
+            
+            if (allCards.length === 0) {
+                throw new Error('No flashcards or quiz questions found in the file');
             }
             
             // Check for duplicate upload
@@ -373,7 +449,7 @@ function loadFlashcardsFromFile(file) {
             // Store the current file content for future comparison
             currentFileContent = fileContent;
             
-            flashcards = data.cards.map(card => ({
+            flashcards = allCards.map(card => ({
                 ...card,
                 difficulty: card.difficulty || 'medium'
             }));

@@ -32,6 +32,7 @@
         <button class="nav-tab" data-tab="progress">📊 Analytics</button>
         <button class="nav-tab" data-tab="settings">⚙️ Settings</button>
         <button class="nav-tab" data-tab="help">❓ How To Use</button>
+        <button class="nav-tab disclaimer-tab" id="disclaimerBtn" data-no-tab="true">⚠️ AI Disclaimer</button>
       </div>
 
       <!-- Upload Tab -->
@@ -54,7 +55,60 @@
 
           <div class="json-format">
             <h3>📋 JSON Format Specification:</h3>
-            <pre>
+            
+            <!-- New Format Collapsible -->
+            <div class="format-section">
+              <button class="format-toggle expanded" data-target="newFormat">
+                <span class="toggle-icon">▼</span>
+                <span class="format-title">✨ New Format (Recommended)</span>
+                <span class="format-badge">AI Generated</span>
+              </button>
+              <div class="format-content" id="newFormat">
+                <pre>
+{
+  "topic": "Advanced JavaScript",
+  "description": "Modern JavaScript concepts and patterns",
+  "flashcards": [
+    {
+      "id": 1,
+      "type": "flashcard",
+      "question": "What is a closure?",
+      "answer": "A closure gives you access to an outer function's scope from an inner function.",
+      "difficulty": "medium"
+    }
+  ],
+  "quizzes": [
+    {
+      "id": 2,
+      "type": "quiz",
+      "question": "Which of the following creates a closure? (Select all that apply)",
+      "answer": "Closures are created when inner functions access outer function variables.",
+      "difficulty": "medium",
+      "choices": [
+        "A function inside another function",
+        "A function returning another function",
+        "Using var keyword",
+        "Arrow functions accessing parent scope"
+      ],
+      "correctChoices": [0, 1, 3]
+    }
+  ]
+}</pre>
+                <p class="format-description">
+                  <strong>💡 Benefits:</strong> Separates traditional flashcards (memory aids) from quiz questions (multiple choice tests). Generated automatically by the AI prompt!
+                </p>
+              </div>
+            </div>
+
+            <!-- Legacy Format Collapsible -->
+            <div class="format-section">
+              <button class="format-toggle" data-target="legacyFormat">
+                <span class="toggle-icon">▶</span>
+                <span class="format-title">🔄 Legacy Format</span>
+                <span class="format-badge legacy">Still Supported</span>
+              </button>
+              <div class="format-content collapsed" id="legacyFormat">
+                <pre>
 {
   "topic": "Advanced JavaScript",
   "description": "Modern JavaScript concepts and patterns",
@@ -73,12 +127,16 @@
       "correctChoices": [0]
     }
   ]
-}</pre
-            >
-            <p style="margin-top: 16px;">
-              <strong>Difficulty levels:</strong> easy (🟢), medium (🔵), hard
-              (🟠), expert (🔴)
-            </p>
+}</pre>
+                <p class="format-description">
+                  <strong>📝 Note:</strong> Original format with single cards array. Your existing JSON files will continue to work.
+                </p>
+              </div>
+            </div>
+
+            <div class="format-info">
+              <p><strong>Difficulty levels:</strong> easy (🟢), medium (🔵), hard (🟠), expert (🔴)</p>
+            </div>
           </div>
         </div>
       </div>
@@ -562,13 +620,28 @@
               id="aiPromptText"
               style="white-space: pre-wrap; font-size: 12px;"
             >
-Please convert the following PDF content into a JSON flashcard format for my study app.
+Please convert the following PDF content into a comprehensive JSON flashcard and quiz format for my study app.
 
-CRITICAL REQUIREMENTS:
-• Randomize correct answer positions - Do NOT put all correct answers in position 0. Distribute them randomly across positions 0, 1, 2, and 3.
-• Include multiple-choice questions - Create 30-40% of questions where multiple answers are correct (use "correctChoices": [0, 2] format).
-• Vary question types - Mix definitional, calculation, application, comparison, and scenario-based questions.
-• Make plausible wrong answers that seem realistic but are clearly incorrect.
+GENERATE TWO TYPES OF CONTENT:
+
+**PART 1: FLASHCARDS (20-25 cards)**
+Create traditional flashcards that help jog memory with simple, direct prompts:
+• Use "What is..." "Define..." "Explain..." style questions
+• Keep questions concise and focused on key concepts
+• Answers should be clear, educational explanations
+• Focus on core terms, definitions, and fundamental concepts
+
+**PART 2: QUIZ QUESTIONS (15-20 questions)**
+Create challenging multiple-choice questions for testing knowledge:
+• Mix definitional, calculation, application, comparison, and scenario-based questions
+• Include 30-40% multiple-choice questions where multiple answers are correct
+• Make plausible wrong answers that seem realistic but clearly incorrect
+• Randomize correct answer positions across all positions (0, 1, 2, 3)
+
+CRITICAL REQUIREMENTS FOR BOTH:
+• Distribute correct answers roughly equally: 25% in each position (0, 1, 2, 3)
+• For multiple-choice questions, use format like "correctChoices": [0, 2, 3]
+• Difficulty levels: 30% easy, 40% medium, 20% hard, 10% expert
 
 Language Guidelines:
 ❌ Avoid: "The document says..." "According to the text..." "The material mentions..."
@@ -577,24 +650,30 @@ Language Guidelines:
 • Make it sound conversational and educational, not robotic or formal
 • Use active voice and engaging language that helps learning
 
-Answer Position Guidelines:
-• Distribute correct answers roughly equally: 25% in position 0, 25% in position 1, 25% in position 2, 25% in position 3
-• For multiple-choice questions, use format like "correctChoices": [0, 2, 3] for questions with multiple correct answers
-• Make "Select all that apply" questions for topics with multiple valid examples/methods/types
-
-Question Type Distribution:
-• 60-70% single correct answer (correctChoices: [X])
-• 30-40% multiple correct answers (correctChoices: [X, Y, Z])
-• Include calculations, definitions, applications, and scenario-based questions
-• Difficulty levels: 30% easy, 40% medium, 20% hard, 10% expert
-
 JSON Structure:
 {
   "topic": "Study Topic Name",
   "description": "Brief description of the material",
-  "cards": [
+  "flashcards": [
     {
       "id": 1,
+      "type": "flashcard",
+      "question": "What is recursion?",
+      "answer": "Recursion is a powerful programming technique where a function calls itself to solve smaller instances of the same problem. It's particularly useful for problems that can be broken down into similar sub-problems.",
+      "difficulty": "medium"
+    },
+    {
+      "id": 2,
+      "type": "flashcard", 
+      "question": "Define encapsulation in OOP",
+      "answer": "Encapsulation is the practice of bundling data and the methods that operate on that data within a single unit or class, while restricting access to some of the object's components.",
+      "difficulty": "easy"
+    }
+  ],
+  "quizzes": [
+    {
+      "id": 3,
+      "type": "quiz",
       "question": "Which programming concept allows functions to call themselves?",
       "answer": "Recursion is a powerful programming technique where a function calls itself to solve smaller instances of the same problem. It's particularly useful for problems that can be broken down into similar sub-problems.",
       "difficulty": "medium",
@@ -607,7 +686,8 @@ JSON Structure:
       "correctChoices": [1]
     },
     {
-      "id": 2,
+      "id": 4,
+      "type": "quiz",
       "question": "Which of the following are object-oriented programming principles? (Select all that apply)",
       "answer": "Object-oriented programming is built on three core principles: Encapsulation (bundling data and methods), Inheritance (creating new classes based on existing ones), and Polymorphism (objects behaving differently based on their type).",
       "difficulty": "easy",
@@ -618,31 +698,21 @@ JSON Structure:
         "Polymorphism"
       ],
       "correctChoices": [0, 2, 3]
-    },
-    {
-      "id": 3,
-      "question": "What is the time complexity of binary search?",
-      "answer": "Binary search achieves O(log n) time complexity by repeatedly dividing the search space in half. Each comparison eliminates half of the remaining elements, making it incredibly efficient for large sorted datasets.",
-      "difficulty": "hard",
-      "choices": [
-        "O(n)",
-        "O(n²)",
-        "O(1)",
-        "O(log n)"
-      ],
-      "correctChoices": [3]
     }
   ]
 }
 
 FINAL CHECKLIST:
-✓ Correct answers distributed across ALL positions (0, 1, 2, 3)
+✓ 20-25 traditional flashcards with "What is..." "Define..." style questions
+✓ 15-20 quiz questions with multiple choice options
+✓ Correct answers distributed across ALL positions (0, 1, 2, 3) for quiz questions
 ✓ 30-40% multiple-choice questions with 2-3 correct answers
 ✓ Mix of question types (definition, calculation, application, scenario)
-✓ Realistic but clearly wrong distractors
+✓ Realistic but clearly wrong distractors for quiz questions
 ✓ Proper difficulty distribution (30% easy, 40% medium, 20% hard, 10% expert)
 ✓ Conversational, educational language (avoid "the document says...")
 ✓ Direct explanations that teach concepts, not reference source material
+✓ Separate sections for flashcards and quizzes in JSON structure
 
 PDF Content:
 [Paste your PDF text here]</pre
@@ -709,15 +779,19 @@ PDF Content:
         </div>
       </div>
     </div>
-    <footer class="ai-footer">
-      <div class="footer-container">
-        <!-- AI Responsibility Warning -->
-        <div class="warning-section">
-          <div class="warning-title">
+
+    <!-- Disclaimer Modal -->
+    <div id="disclaimerModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>
             <span class="warning-icon">⚠️</span>
             Responsible AI Use for Studying
-          </div>
-          <div class="warning-content">
+          </h2>
+          <button class="modal-close" id="modalCloseBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-section">
             <p>
               <strong>Important:</strong> This tool uses AI to generate study
               materials. While designed to be helpful, please use responsibly:
@@ -753,10 +827,8 @@ PDF Content:
               >
             </p>
           </div>
-        </div>
-        <!-- Creator and Contact Info -->
-        <div class="creator-section">
-          <div class="creator-info">
+          
+          <div class="modal-section">
             <h3>Created by Saurabh Mankar</h3>
             <p>
               Passionate about making learning more accessible through
@@ -766,24 +838,23 @@ PDF Content:
               <strong>Want to contribute or suggest improvements?</strong> I'd
               love to hear from you!
             </p>
+            <div class="contact-links">
+              <a href="mailto:mankar.saurabh@example.com">📧 Email</a>
+              <a href="https://github.com/mSaurabh" target="_blank">💻 GitHub</a>
+            </div>
           </div>
-          <div class="contact-links">
-            <!-- UPDATE THESE LINKS WITH YOUR ACTUAL CONTACT INFO -->
-            <a href="mailto:mankar.saurabh@example.com">📧 Email</a>
-            <a href="https://github.com/mSaurabh" target="_blank">💻 GitHub</a>
-          </div>
-        </div>
 
-        <!-- Legal Disclaimer -->
-        <div class="disclaimer">
-          <p>
-            © 2025 Saurabh Mankar. This tool is provided as-is for educational
-            purposes. Users are responsible for verifying accuracy and following
-            their institution's academic policies.
-          </p>
+          <div class="modal-section">
+            <p class="disclaimer-text">
+              © 2025 Saurabh Mankar. This tool is provided as-is for educational
+              purposes. Users are responsible for verifying accuracy and following
+              their institution's academic policies.
+            </p>
+          </div>
         </div>
       </div>
-    </footer>
+    </div>
+
     <!-- Scripts -->
     <script src="app.js"></script>
   </body>

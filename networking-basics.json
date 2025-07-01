@@ -1,0 +1,266 @@
+{
+  "topic": "Networking Basics for Developers",
+  "description": "Fundamental networking concepts including IP addresses, protocols, data packets, network layers, and client-server communication",
+  "cards": [
+    {
+      "id": 1,
+      "question": "What is the range of IPv4 addresses?",
+      "answer": "IPv4 addresses span from 0.0.0.0 to 255.255.255.255, consisting of four octets where each octet can hold values from 0 to 255. This 32-bit addressing system theoretically provides about 4.3 billion unique addresses.",
+      "difficulty": "easy",
+      "choices": [
+        "0.0.0.0 - 255.255.255.255",
+        "1.1.1.1 - 256.256.256.256", 
+        "0.0.0.0 - 128.128.128.128",
+        "1.0.0.0 - 255.0.0.0"
+      ],
+      "correctChoices": [0]
+    },
+    {
+      "id": 2,
+      "question": "Which characteristics distinguish IPv6 from IPv4? (Select all that apply)",
+      "answer": "IPv6 represents a major upgrade from IPv4, featuring 128-bit addresses (versus 32-bit), hexadecimal format representation, and a virtually unlimited address space that solves the IPv4 exhaustion problem.",
+      "difficulty": "medium",
+      "choices": [
+        "Uses 32-bit addresses",
+        "128-bit address length",
+        "Hexadecimal representation",
+        "Limited to 4.3 billion addresses"
+      ],
+      "correctChoices": [1, 2]
+    },
+    {
+      "id": 3,
+      "question": "What is TCP's primary responsibility in network communication?",
+      "answer": "TCP ensures reliable data transmission by managing packet sequencing, guaranteeing packets arrive in the correct order, and handling packet reassembly at the destination. It acts like numbering pages in a letter to ensure proper reading order.",
+      "difficulty": "medium",
+      "choices": [
+        "Setting physical pathway for data",
+        "Accurate packet transmission and sequencing",
+        "Assigning IP addresses to devices",
+        "Encrypting data for security"
+      ],
+      "correctChoices": [1]
+    },
+    {
+      "id": 4,
+      "question": "Which components make up a data packet structure? (Select all that apply)",
+      "answer": "Data packets contain three essential components: a header with routing information (like source/destination IP), the actual data payload being transmitted, and a trailer with additional control information.",
+      "difficulty": "easy",
+      "choices": [
+        "Header",
+        "Data payload",
+        "Encryption key",
+        "Trailer"
+      ],
+      "correctChoices": [0, 1, 3]
+    },
+    {
+      "id": 5,
+      "question": "In which network layers do these protocols operate? (Select all that apply)",
+      "answer": "Network protocols are organized hierarchically: IP operates in the network layer handling routing, TCP works in the transport layer ensuring reliable delivery, and HTTP functions in the application layer enabling client-server communication.",
+      "difficulty": "medium",
+      "choices": [
+        "IP in network layer",
+        "TCP in application layer", 
+        "TCP in transport layer",
+        "HTTP in application layer"
+      ],
+      "correctChoices": [0, 2, 3]
+    },
+    {
+      "id": 6,
+      "question": "What is the range of port numbers available for applications?",
+      "answer": "Port numbers are 16-bit integers ranging from 0 to 65,535. This wide range allows thousands of different applications and services to run simultaneously on a single device without conflicts.",
+      "difficulty": "easy",
+      "choices": [
+        "0 - 1023",
+        "0 - 32,767",
+        "0 - 65,535", 
+        "1024 - 49,151"
+      ],
+      "correctChoices": [2]
+    },
+    {
+      "id": 7,
+      "question": "When should you use a public IP address versus a private IP address?",
+      "answer": "Public IP addresses are essential for internet communication between separate networks, provided by ISPs and globally accessible. Private IP addresses work within confined networks like home or office LANs and aren't accessible from the broader internet.",
+      "difficulty": "medium",
+      "choices": [
+        "Public for local networks, private for internet",
+        "Private for local networks, public for internet communication",
+        "Both can be used interchangeably",
+        "Public for servers only, private for clients only"
+      ],
+      "correctChoices": [1]
+    },
+    {
+      "id": 8,
+      "question": "Which statements about static and dynamic IP addresses are correct? (Select all that apply)",
+      "answer": "Dynamic IP addresses change automatically with each connection and are commonly used for clients in home networks, while static IP addresses require manual configuration and remain unchanged, making them ideal for servers that need consistent addressing.",
+      "difficulty": "hard",
+      "choices": [
+        "Dynamic IPs change with each connection",
+        "Static IPs are automatically assigned",
+        "Dynamic IPs require manual configuration", 
+        "Static IPs remain unchanged"
+      ],
+      "correctChoices": [0, 3]
+    },
+    {
+      "id": 9,
+      "question": "Why can't two applications run on the same port simultaneously?",
+      "answer": "Ports serve as unique identifiers for applications on a device. When one application occupies a port, the operating system prevents other applications from using it to avoid conflicts and ensure proper data routing to the correct application.",
+      "difficulty": "easy",
+      "choices": [
+        "Limited bandwidth availability",
+        "Security restrictions prevent it",
+        "Port conflicts would cause routing confusion",
+        "Hardware limitations of network cards"
+      ],
+      "correctChoices": [2]
+    },
+    {
+      "id": 10,
+      "question": "In the Alice and Bob networking analogy, what does Bob's mailing address represent?",
+      "answer": "Bob's mailing address serves as a perfect analogy for his IP address in networking. Just as mail needs a specific address to reach the right person, data packets need IP addresses to reach the correct device on the network.",
+      "difficulty": "medium",
+      "choices": [
+        "TCP header information",
+        "Data packet payload",
+        "Bob's IP address",
+        "Network protocol type"
+      ],
+      "correctChoices": [2]
+    },
+    {
+      "id": 11,
+      "question": "What determines the hierarchical organization of network protocols?",
+      "answer": "Network protocols are systematically arranged into layers where each layer has specific responsibilities and interacts with adjacent layers. This layered approach enables modular communication, with each layer building upon the services of the layer below it.",
+      "difficulty": "hard",
+      "choices": [
+        "Processing speed requirements",
+        "Security levels needed",
+        "Data transmission distance",
+        "Specific duties and layer interactions"
+      ],
+      "correctChoices": [3]
+    },
+    {
+      "id": 12,
+      "question": "How many bits does each octet in an IPv4 address contain, and what's the maximum decimal value?",
+      "answer": "Each IPv4 octet consists of exactly 8 bits (1 byte), which can represent decimal values from 0 to 255. This is because 2^8 = 256 possible values, starting from 0.",
+      "difficulty": "expert",
+      "choices": [
+        "8 bits, maximum value 255",
+        "16 bits, maximum value 65535",
+        "4 bits, maximum value 15",
+        "32 bits, maximum value 4294967295"
+      ],
+      "correctChoices": [0]
+    },
+    {
+      "id": 13,
+      "question": "Which examples represent application data in network packets? (Select all that apply)",
+      "answer": "Application data represents the actual content being transmitted. HTTP POST requests carry form data or file uploads, while GET request responses contain the retrieved web page content, images, or API data that applications need.",
+      "difficulty": "medium",
+      "choices": [
+        "HTTP POST request content",
+        "IP header routing information",
+        "HTTP GET response data",
+        "TCP sequence numbers"
+      ],
+      "correctChoices": [0, 2]
+    },
+    {
+      "id": 14,
+      "question": "What happens when multiple packets arrive out of order at their destination?",
+      "answer": "TCP handles out-of-order packet arrival by using sequence numbers in packet headers. These numbers allow the receiving system to reassemble packets in the correct order, regardless of their arrival sequence, ensuring data integrity.",
+      "difficulty": "hard",
+      "choices": [
+        "Data becomes corrupted and unusable",
+        "TCP uses sequence numbers to reassemble correctly",
+        "Packets are automatically resent",
+        "The connection terminates immediately"
+      ],
+      "correctChoices": [1]
+    },
+    {
+      "id": 15,
+      "question": "Which methods can assign IP addresses to devices? (Select all that apply)",
+      "answer": "IP addresses can be assigned through multiple methods: DHCP automatically assigns dynamic addresses that change over time, while static assignment involves manual configuration of permanent addresses that don't change.",
+      "difficulty": "medium",
+      "choices": [
+        "Dynamic assignment via DHCP",
+        "Manual static configuration",
+        "Random automatic generation",
+        "Peer-to-peer negotiation"
+      ],
+      "correctChoices": [0, 1]
+    },
+    {
+      "id": 16,
+      "question": "How does TCP ensure reliable data transmission across multiple packets?",
+      "answer": "TCP combines sequencing and acknowledgment mechanisms to guarantee reliability. It assigns sequence numbers to packets, tracks which packets arrive successfully, and requests retransmission of any missing or corrupted packets.",
+      "difficulty": "hard",
+      "choices": [
+        "Encrypts all packet contents",
+        "Sends duplicate copies of every packet",
+        "Uses sequence numbers and acknowledgments",
+        "Compresses data to reduce errors"
+      ],
+      "correctChoices": [2]
+    },
+    {
+      "id": 17,
+      "question": "Which functions do different protocol layers provide? (Select all that apply)",
+      "answer": "The layered protocol model divides responsibilities: the network layer handles routing and pathfinding, the transport layer manages reliable delivery and error correction, and the application layer enables user-facing services and interfaces.",
+      "difficulty": "expert",
+      "choices": [
+        "Network layer handles routing",
+        "Transport layer manages reliable delivery", 
+        "Application layer provides user interfaces",
+        "Physical layer encrypts data"
+      ],
+      "correctChoices": [0, 1, 2]
+    },
+    {
+      "id": 18,
+      "question": "What happens when you try to start an Angular application on port 4200 if it's already in use?",
+      "answer": "The system will detect the port conflict and typically prompt you to use a different port. Port 4200 can only host one application at a time, so the second application must find an available alternative port to avoid conflicts.",
+      "difficulty": "easy",
+      "choices": [
+        "Both applications share the port automatically",
+        "The newer application takes over the port",
+        "System prompts to use a different port",
+        "The computer restarts to resolve conflicts"
+      ],
+      "correctChoices": [2]
+    },
+    {
+      "id": 19,
+      "question": "Which protocol combination ensures both accurate delivery and proper packet sequencing?",
+      "answer": "The combination of IP and TCP provides comprehensive data transmission reliability. IP handles routing to the correct destination, while TCP manages packet sequencing, error detection, and retransmission of lost packets.",
+      "difficulty": "medium",
+      "choices": [
+        "HTTP and HTTPS",
+        "IP and TCP",
+        "UDP and DNS", 
+        "FTP and SMTP"
+      ],
+      "correctChoices": [1]
+    },
+    {
+      "id": 20,
+      "question": "What purposes do unique network identifiers serve? (Select all that apply)",
+      "answer": "Unique identifiers like IP addresses and port numbers serve critical networking functions: they enable precise data routing to specific devices, allow multiple services to coexist on one machine, and ensure packets reach their intended destinations without confusion.",
+      "difficulty": "easy",
+      "choices": [
+        "Enable accurate data routing",
+        "Distinguish between multiple applications",
+        "Provide data encryption", 
+        "Ensure packet delivery to correct destinations"
+      ],
+      "correctChoices": [0, 1, 3]
+    }
+  ]
+}
