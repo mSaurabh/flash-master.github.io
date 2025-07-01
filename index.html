@@ -1,53 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' https:;">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' https:;"
+    />
     <title>FlashMaster - Interactive Study Cards & Quizzes</title>
-    
+
     <!-- External Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    
+
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
     <!-- Styles -->
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <div class="logo">⚡ FlashMaster</div>
-            <div class="subtitle">Next-Generation Interactive Study Platform</div>
-        </div>
+      <div class="header">
+        <div class="logo">⚡ FlashMaster</div>
+        <div class="subtitle">Next-Generation Interactive Study Platform</div>
+      </div>
 
-        <div class="nav-tabs">
-            <button class="nav-tab active" data-tab="upload">📁 Upload</button>
-            <button class="nav-tab" data-tab="study">🎯 Study</button>
-            <button class="nav-tab" data-tab="quiz">🧪 Quiz</button>
-            <button class="nav-tab" data-tab="progress">📊 Analytics</button>
-            <button class="nav-tab" data-tab="settings">⚙️ Settings</button>
-            <button class="nav-tab" data-tab="help">❓ How To Use</button>
-        </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-tab="upload">📁 Upload</button>
+        <button class="nav-tab" data-tab="study">🎯 Study</button>
+        <button class="nav-tab" data-tab="quiz">🧪 Quiz</button>
+        <button class="nav-tab" data-tab="progress">📊 Analytics</button>
+        <button class="nav-tab" data-tab="settings">⚙️ Settings</button>
+        <button class="nav-tab" data-tab="help">❓ How To Use</button>
+      </div>
 
-        <!-- Upload Tab -->
-        <div id="upload" class="tab-content active">
-            <div class="upload-section">
-                <h2>📁 Upload Flashcard Set</h2>
-                <p>Import your JSON file to start learning</p>
-                
-                <div class="file-upload" id="fileUploadArea">
-                    <div style="font-size: 3em; margin-bottom: 16px;">📄</div>
-                    <div style="font-size: 1.2em; margin-bottom: 12px;">Drop your JSON file here</div>
-                    <div style="color: rgba(228, 228, 231, 0.6);">or click to browse</div>
-                </div>
-                
-                <input type="file" id="fileInput" class="file-input" accept=".json">
-                
-                <div class="json-format">
-                    <h3>📋 JSON Format Specification:</h3>
-                    <pre>{
+      <!-- Upload Tab -->
+      <div id="upload" class="tab-content active">
+        <div class="upload-section">
+          <h2>📁 Upload Flashcard Set</h2>
+          <p>Import your JSON file to start learning</p>
+
+          <div class="file-upload" id="fileUploadArea">
+            <div style="font-size: 3em; margin-bottom: 16px;">📄</div>
+            <div style="font-size: 1.2em; margin-bottom: 12px;">
+              Drop your JSON file here
+            </div>
+            <div style="color: rgba(228, 228, 231, 0.6);">
+              or click to browse
+            </div>
+          </div>
+
+          <input type="file" id="fileInput" class="file-input" accept=".json" />
+
+          <div class="json-format">
+            <h3>📋 JSON Format Specification:</h3>
+            <pre>
+{
   "topic": "Advanced JavaScript",
   "description": "Modern JavaScript concepts and patterns",
   "cards": [
@@ -65,299 +73,496 @@
       "correctChoices": [0]
     }
   ]
-}</pre>
-                    <p style="margin-top: 16px;"><strong>Difficulty levels:</strong> easy (🟢), medium (🔵), hard (🟠), expert (🔴)</p>
-                </div>
+}</pre
+            >
+            <p style="margin-top: 16px;">
+              <strong>Difficulty levels:</strong> easy (🟢), medium (🔵), hard
+              (🟠), expert (🔴)
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Study Tab -->
+      <div id="study" class="tab-content">
+        <div id="studyContent" style="display: none;">
+          <div class="mode-selector">
+            <button class="mode-btn active" data-mode="flashcard">
+              💳 Flashcard Mode
+            </button>
+          </div>
+
+          <div class="stats">
+            <h2>📈 Session Progress</h2>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-number" id="currentCard">0</div>
+                <div class="stat-label">Current Card</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="totalCards">0</div>
+                <div class="stat-label">Total Cards</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="correctCount">0</div>
+                <div class="stat-label">Correct</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="currentAccuracy">0%</div>
+                <div class="stat-label">Accuracy</div>
+              </div>
             </div>
+
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill" style="width: 0%">
+                0%
+              </div>
+            </div>
+          </div>
+
+          <div class="flashcard-container">
+            <div class="flashcard" id="flashcard">
+              <div class="card-face card-front" id="cardFront">
+                <div id="questionText">Ready to start learning?</div>
+                <div
+                  class="difficulty-indicator"
+                  id="difficultyIndicator"
+                ></div>
+                <div class="card-hint">Click to reveal answer</div>
+              </div>
+              <div class="card-face card-back" id="cardBack">
+                <div id="answerText">Answer appears here</div>
+                <div class="card-controls">
+                  <button class="btn btn-incorrect card-btn" id="incorrectBtn">
+                    ❌ Incorrect
+                  </button>
+                  <button class="btn btn-correct card-btn" id="correctBtn">
+                    ✅ Correct
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="btn btn-next" id="nextBtn">▶️ Start</button>
+          </div>
+
+          <div id="sessionComplete" style="display: none;" class="stats">
+            <h2>🎉 Session Complete!</h2>
+            <div id="finalResults"></div>
+            <button class="btn btn-next" id="restartSessionBtn">
+              🔄 Study Again
+            </button>
+          </div>
         </div>
 
-        <!-- Study Tab -->
-        <div id="study" class="tab-content">
-            <div id="studyContent" style="display: none;">
-                <div class="mode-selector">
-                    <button class="mode-btn active" data-mode="flashcard">💳 Flashcard Mode</button>
-                </div>
+        <div id="noCardsMessage" class="upload-section">
+          <h2>📚 No Flashcards Loaded</h2>
+          <p>Upload your JSON file to get started</p>
+          <button class="btn btn-next" data-tab="upload">
+            📁 Upload Cards
+          </button>
+        </div>
+      </div>
 
-                <div class="stats">
-                    <h2>📈 Session Progress</h2>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-number" id="currentCard">0</div>
-                            <div class="stat-label">Current Card</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="totalCards">0</div>
-                            <div class="stat-label">Total Cards</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="correctCount">0</div>
-                            <div class="stat-label">Correct</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="currentAccuracy">0%</div>
-                            <div class="stat-label">Accuracy</div>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
-                    </div>
-                </div>
+      <!-- Quiz Tab -->
+      <div id="quiz" class="tab-content">
+        <div id="quizContent" style="display: none;">
+          <div class="mode-selector">
+            <button class="mode-btn active" data-quiz-mode="single">
+              🎯 Single Choice
+            </button>
+            <button class="mode-btn" data-quiz-mode="multiple">
+              ✅ Multiple Choice
+            </button>
+            <button class="mode-btn" data-quiz-mode="combination">
+              🔀 Combination
+            </button>
+            <button class="mode-btn" data-quiz-mode="timed">
+              ⏱️ Timed Quiz
+            </button>
+          </div>
 
-                <div class="flashcard-container">
-                    <div class="flashcard" id="flashcard">
-                        <div class="card-face card-front" id="cardFront">
-                            <div id="questionText">Ready to start learning?</div>
-                            <div class="difficulty-indicator" id="difficultyIndicator"></div>
-                            <div class="card-hint">Click to reveal answer</div>
-                        </div>
-                        <div class="card-face card-back" id="cardBack">
-                            <div id="answerText">Answer appears here</div>
-                            <div class="card-controls">
-                                <button class="btn btn-incorrect card-btn" id="incorrectBtn">❌ Incorrect</button>
-                                <button class="btn btn-correct card-btn" id="correctBtn">✅ Correct</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="controls">
-                    <button class="btn btn-next" id="nextBtn">▶️ Start</button>
-                </div>
-
-                <div id="sessionComplete" style="display: none;" class="stats">
-                    <h2>🎉 Session Complete!</h2>
-                    <div id="finalResults"></div>
-                    <button class="btn btn-next" id="restartSessionBtn">🔄 Study Again</button>
-                </div>
+          <div class="stats">
+            <h2>🧪 Quiz Session</h2>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-number" id="quizCurrentCard">0</div>
+                <div class="stat-label">Current Question</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="quizTotalCards">0</div>
+                <div class="stat-label">Total Questions</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="quizCorrectCount">0</div>
+                <div class="stat-label">Correct</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="quizCurrentAccuracy">0%</div>
+                <div class="stat-label">Accuracy</div>
+              </div>
             </div>
 
-            <div id="noCardsMessage" class="upload-section">
-                <h2>📚 No Flashcards Loaded</h2>
-                <p>Upload your JSON file to get started</p>
-                <button class="btn btn-next" data-tab="upload">📁 Upload Cards</button>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                id="quizProgressFill"
+                style="width: 0%"
+              >
+                0%
+              </div>
             </div>
+          </div>
+
+          <div id="quizTimer" class="quiz-timer" style="display: none;">
+            ⏱️ Time Remaining: <span id="timeLeft">00:00</span>
+            <div class="timer-progress-bar">
+              <div
+                class="timer-progress-fill"
+                id="timerProgressFill"
+                style="width: 100%"
+              ></div>
+            </div>
+          </div>
+
+          <div
+            id="timedQuizStart"
+            class="quiz-container"
+            style="display: none;"
+          >
+            <div class="quiz-question">Ready for a timed challenge?</div>
+            <p
+              style="text-align: center; margin: 20px 0; color: rgba(228, 228, 231, 0.7);"
+            >
+              You'll have <span id="timedQuizDuration">60</span> minutes to
+              answer all questions.
+            </p>
+            <div class="controls">
+              <button class="btn btn-next" id="startTimedQuizBtn">
+                🚀 Start Timed Quiz
+              </button>
+            </div>
+          </div>
+
+          <div class="quiz-container">
+            <div class="quiz-question" id="quizQuestion">
+              Ready to test your knowledge?
+            </div>
+            <div class="quiz-options" id="quizOptions"></div>
+            <div class="controls">
+              <button
+                class="btn btn-next"
+                id="quizSubmitBtn"
+                style="display: none;"
+              >
+                Submit Answer
+              </button>
+              <button class="btn btn-next" id="quizNextBtn">
+                ▶️ Start Quiz
+              </button>
+              <button
+                class="btn btn-secondary"
+                id="endQuizMainBtn"
+                style="display: none;"
+              >
+                🏁 End Quiz
+              </button>
+            </div>
+          </div>
+
+          <div id="quizComplete" style="display: none;" class="stats">
+            <h2>🎉 Quiz Complete!</h2>
+            <div id="quizFinalResults"></div>
+            <div class="controls">
+              <button class="btn btn-next" id="restartQuizBtn">
+                🔄 Retake Quiz
+              </button>
+              <button class="btn btn-correct" id="downloadQuizResultsBtn">
+                📥 Download Results
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Quiz Tab -->
-        <div id="quiz" class="tab-content">
-            <div id="quizContent" style="display: none;">
-                <div class="mode-selector">
-                    <button class="mode-btn active" data-quiz-mode="single">🎯 Single Choice</button>
-                    <button class="mode-btn" data-quiz-mode="multiple">✅ Multiple Choice</button>
-                    <button class="mode-btn" data-quiz-mode="combination">🔀 Combination</button>
-                    <button class="mode-btn" data-quiz-mode="timed">⏱️ Timed Quiz</button>
-                </div>
+        <div id="noQuizMessage" class="upload-section">
+          <h2>🧪 Quiz Mode Unavailable</h2>
+          <p>Upload JSON with quiz choices to enable quiz mode</p>
+          <button class="btn btn-next" onclick="switchTab('upload', event)">
+            📁 Upload Cards
+          </button>
+        </div>
+      </div>
 
-                <div class="stats">
-                    <h2>🧪 Quiz Session</h2>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-number" id="quizCurrentCard">0</div>
-                            <div class="stat-label">Current Question</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="quizTotalCards">0</div>
-                            <div class="stat-label">Total Questions</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="quizCorrectCount">0</div>
-                            <div class="stat-label">Correct</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number" id="quizCurrentAccuracy">0%</div>
-                            <div class="stat-label">Accuracy</div>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="quizProgressFill" style="width: 0%">0%</div>
-                    </div>
-                </div>
-
-                <div id="quizTimer" class="quiz-timer" style="display: none;">
-                    ⏱️ Time Remaining: <span id="timeLeft">00:00</span>
-                    <div class="timer-progress-bar">
-                        <div class="timer-progress-fill" id="timerProgressFill" style="width: 100%"></div>
-                    </div>
-                </div>
-
-                <div id="timedQuizStart" class="quiz-container" style="display: none;">
-                    <div class="quiz-question">Ready for a timed challenge?</div>
-                    <p style="text-align: center; margin: 20px 0; color: rgba(228, 228, 231, 0.7);">
-                        You'll have <span id="timedQuizDuration">60</span> minutes to answer all questions.
-                    </p>
-                    <div class="controls">
-                        <button class="btn btn-next" id="startTimedQuizBtn">🚀 Start Timed Quiz</button>
-                    </div>
-                </div>
-
-                <div class="quiz-container">
-                    <div class="quiz-question" id="quizQuestion">Ready to test your knowledge?</div>
-                    <div class="quiz-options" id="quizOptions"></div>
-                    <div class="controls">
-                        <button class="btn btn-next" id="quizSubmitBtn" style="display: none;">Submit Answer</button>
-                        <button class="btn btn-next" id="quizNextBtn">▶️ Start Quiz</button>
-                        <button class="btn btn-secondary" id="endQuizMainBtn" style="display: none;">🏁 End Quiz</button>
-                    </div>
-                </div>
-
-                <div id="quizComplete" style="display: none;" class="stats">
-                    <h2>🎉 Quiz Complete!</h2>
-                    <div id="quizFinalResults"></div>
-                    <div class="controls">
-                        <button class="btn btn-next" id="restartQuizBtn">🔄 Retake Quiz</button>
-                        <button class="btn btn-correct" id="downloadQuizResultsBtn">📥 Download Results</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="noQuizMessage" class="upload-section">
-                <h2>🧪 Quiz Mode Unavailable</h2>
-                <p>Upload JSON with quiz choices to enable quiz mode</p>
-                <button class="btn btn-next" onclick="switchTab('upload', event)">📁 Upload Cards</button>
-            </div>
+      <!-- Progress Tab -->
+      <div id="progress" class="tab-content">
+        <div class="chart-container">
+          <h2>📊 Performance Analytics</h2>
+          <canvas id="progressChart" width="400" height="200"></canvas>
         </div>
 
-        <!-- Progress Tab -->
-        <div id="progress" class="tab-content">
-            <div class="chart-container">
-                <h2>📊 Performance Analytics</h2>
-                <canvas id="progressChart" width="400" height="200"></canvas>
+        <div class="stats">
+          <h2>📈 Lifetime Statistics</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-number" id="totalSessions">0</div>
+              <div class="stat-label">Study Sessions</div>
             </div>
-            
-            <div class="stats">
-                <h2>📈 Lifetime Statistics</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalSessions">0</div>
-                        <div class="stat-label">Study Sessions</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalQuizzes">0</div>
-                        <div class="stat-label">Quizzes Taken</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="overallAccuracy">0%</div>
-                        <div class="stat-label">Overall Accuracy</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="passingSessions">0</div>
-                        <div class="stat-label">Passing Sessions</div>
-                    </div>
-                </div>
-                
-                <div class="progress-section">
-                    <button class="progress-btn" id="exportProgressBtn">📤 Export Progress</button>
-                    <button class="progress-btn" id="importProgressBtn">📥 Import Progress</button>
-                    <button class="btn btn-secondary" id="clearProgressBtn">🗑️ Clear All Data</button>
-                    <input type="file" id="progressImport" accept=".json" style="display: none;">
-                </div>
+            <div class="stat-card">
+              <div class="stat-number" id="totalQuizzes">0</div>
+              <div class="stat-label">Quizzes Taken</div>
             </div>
+            <div class="stat-card">
+              <div class="stat-number" id="overallAccuracy">0%</div>
+              <div class="stat-label">Overall Accuracy</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="passingSessions">0</div>
+              <div class="stat-label">Passing Sessions</div>
+            </div>
+          </div>
+
+          <div class="progress-section">
+            <button class="progress-btn" id="exportProgressBtn">
+              📤 Export Progress
+            </button>
+            <button class="progress-btn" id="importProgressBtn">
+              📥 Import Progress
+            </button>
+            <button class="btn btn-secondary" id="clearProgressBtn">
+              🗑️ Clear All Data
+            </button>
+            <input
+              type="file"
+              id="progressImport"
+              accept=".json"
+              style="display: none;"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div id="settings" class="tab-content">
+        <div class="settings">
+          <h2>⚙️ Configuration</h2>
+
+          <div class="setting-group">
+            <label class="setting-label" for="passingThreshold"
+              >🎯 Passing Threshold (%)</label
+            >
+            <input
+              type="number"
+              id="passingThreshold"
+              class="setting-input"
+              min="0"
+              max="100"
+              value="70"
+            />
+            <p style="margin-top: 12px; color: rgba(228, 228, 231, 0.7);">
+              Minimum accuracy to pass a session
+            </p>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label" for="shuffleCards"
+              >🔀 Card Randomization</label
+            >
+            <select id="shuffleCards" class="setting-input">
+              <option value="true">Enabled - Randomize order</option>
+              <option value="false">Disabled - Sequential order</option>
+            </select>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label" for="timePerQuestion"
+              >⏱️ Time Per Question (seconds)</label
+            >
+            <input
+              type="number"
+              id="timePerQuestion"
+              class="setting-input"
+              min="5"
+              max="120"
+              value="30"
+            />
+            <p style="margin-top: 12px; color: rgba(228, 228, 231, 0.7);">
+              Time allocated per question in timed quiz mode
+            </p>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label">📚 Current Dataset</label>
+            <div
+              id="currentTopic"
+              style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-top: 12px; border: 1px solid rgba(255, 255, 255, 0.1);"
+            >
+              No flashcards loaded
+            </div>
+          </div>
+
+          <button class="btn btn-next" id="saveSettingsBtn">
+            💾 Save Configuration
+          </button>
+        </div>
+      </div>
+
+      <!-- Help Tab -->
+      <div id="help" class="tab-content">
+        <div class="upload-section">
+          <h2>❓ How To Use FlashMaster</h2>
+          <p>
+            Welcome! FlashMaster makes studying with flashcards easy and
+            effective. Here's how to get started:
+          </p>
         </div>
 
-        <!-- Settings Tab -->
-        <div id="settings" class="tab-content">
-            <div class="settings">
-                <h2>⚙️ Configuration</h2>
-                
-                <div class="setting-group">
-                    <label class="setting-label" for="passingThreshold">🎯 Passing Threshold (%)</label>
-                    <input type="number" id="passingThreshold" class="setting-input" min="0" max="100" value="70">
-                    <p style="margin-top: 12px; color: rgba(228, 228, 231, 0.7);">Minimum accuracy to pass a session</p>
-                </div>
-                
-                <div class="setting-group">
-                    <label class="setting-label" for="shuffleCards">🔀 Card Randomization</label>
-                    <select id="shuffleCards" class="setting-input">
-                        <option value="true">Enabled - Randomize order</option>
-                        <option value="false">Disabled - Sequential order</option>
-                    </select>
-                </div>
-
-                <div class="setting-group">
-                    <label class="setting-label" for="timePerQuestion">⏱️ Time Per Question (seconds)</label>
-                    <input type="number" id="timePerQuestion" class="setting-input" min="5" max="120" value="30">
-                    <p style="margin-top: 12px; color: rgba(228, 228, 231, 0.7);">Time allocated per question in timed quiz mode</p>
-                </div>
-                
-                <div class="setting-group">
-                    <label class="setting-label">📚 Current Dataset</label>
-                    <div id="currentTopic" style="padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-top: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
-                        No flashcards loaded
-                    </div>
-                </div>
-                
-                <button class="btn btn-next" id="saveSettingsBtn">💾 Save Configuration</button>
-            </div>
+        <div class="stats">
+          <h2>📁 Step 1: Upload Your Cards</h2>
+          <p>
+            <strong>What to do:</strong> Click the "Upload" tab and drag your
+            JSON file onto the upload area.
+          </p>
+          <p>
+            <strong>File format:</strong> Your file should be a JSON file with
+            questions, answers, and multiple choice options.
+          </p>
+          <p>
+            <strong>Example:</strong> See the sample format shown in the upload
+            section - copy it to create your own cards!
+          </p>
         </div>
 
-        <!-- Help Tab -->
-        <div id="help" class="tab-content">
-            <div class="upload-section">
-                <h2>❓ How To Use FlashMaster</h2>
-                <p>Welcome! FlashMaster makes studying with flashcards easy and effective. Here's how to get started:</p>
-            </div>
+        <div class="stats">
+          <h2>🎯 Step 2: Study Mode</h2>
+          <p>
+            <strong>Flashcard Mode:</strong> Click through cards one by one.
+            Read the question, think of your answer, then flip the card to see
+            if you got it right.
+          </p>
+          <p>
+            <strong>Mark yourself:</strong> Click "Correct" or "Incorrect" to
+            track your progress.
+          </p>
+          <p>
+            <strong>Your progress:</strong> Watch the progress bar fill up as
+            you go through all cards.
+          </p>
+        </div>
 
-            <div class="stats">
-                <h2>📁 Step 1: Upload Your Cards</h2>
-                <p><strong>What to do:</strong> Click the "Upload" tab and drag your JSON file onto the upload area.</p>
-                <p><strong>File format:</strong> Your file should be a JSON file with questions, answers, and multiple choice options.</p>
-                <p><strong>Example:</strong> See the sample format shown in the upload section - copy it to create your own cards!</p>
-            </div>
+        <div class="stats">
+          <h2>🧪 Step 3: Test Yourself</h2>
+          <p>
+            <strong>Quiz modes:</strong> Choose from Single Choice, Multiple
+            Choice, Combination, or Timed Quiz.
+          </p>
+          <p>
+            <strong>Combination mode:</strong> Automatically uses single choice
+            for questions with one correct answer, and multiple choice for
+            questions with several correct answers.
+          </p>
+          <p>
+            <strong>Timed Quiz:</strong> Race against the clock! You get time
+            per question (set in Settings).
+          </p>
+          <p>
+            <strong>Floating timer:</strong> During timed quizzes, a glass timer
+            floats on your screen - click the ✕ to end early if needed.
+          </p>
+          <p>
+            <strong>Results:</strong> Get detailed results showing your accuracy
+            and time used.
+          </p>
+        </div>
 
-            <div class="stats">
-                <h2>🎯 Step 2: Study Mode</h2>
-                <p><strong>Flashcard Mode:</strong> Click through cards one by one. Read the question, think of your answer, then flip the card to see if you got it right.</p>
-                <p><strong>Mark yourself:</strong> Click "Correct" or "Incorrect" to track your progress.</p>
-                <p><strong>Your progress:</strong> Watch the progress bar fill up as you go through all cards.</p>
-            </div>
+        <div class="stats">
+          <h2>📊 Step 4: Track Progress</h2>
+          <p>
+            <strong>Analytics:</strong> View charts showing your performance
+            over time.
+          </p>
+          <p>
+            <strong>Export/Import:</strong> Save your progress data or load it
+            on another device.
+          </p>
+          <p>
+            <strong>Lifetime stats:</strong> See total sessions, quizzes taken,
+            and overall accuracy.
+          </p>
+        </div>
 
-            <div class="stats">
-                <h2>🧪 Step 3: Test Yourself</h2>
-                <p><strong>Quiz modes:</strong> Choose from Single Choice, Multiple Choice, Combination, or Timed Quiz.</p>
-                <p><strong>Combination mode:</strong> Automatically uses single choice for questions with one correct answer, and multiple choice for questions with several correct answers.</p>
-                <p><strong>Timed Quiz:</strong> Race against the clock! You get time per question (set in Settings).</p>
-                <p><strong>Floating timer:</strong> During timed quizzes, a glass timer floats on your screen - click the ✕ to end early if needed.</p>
-                <p><strong>Results:</strong> Get detailed results showing your accuracy and time used.</p>
-            </div>
+        <div class="stats">
+          <h2>⚙️ Step 5: Customize Settings</h2>
+          <p>
+            <strong>Passing threshold:</strong> Set the minimum score needed to
+            "pass" a session (default: 70%).
+          </p>
+          <p>
+            <strong>Card randomization:</strong> Choose whether cards appear in
+            random order or sequential.
+          </p>
+          <p>
+            <strong>Time per question:</strong> Adjust how much time you get for
+            each question in timed quizzes.
+          </p>
+        </div>
 
-            <div class="stats">
-                <h2>📊 Step 4: Track Progress</h2>
-                <p><strong>Analytics:</strong> View charts showing your performance over time.</p>
-                <p><strong>Export/Import:</strong> Save your progress data or load it on another device.</p>
-                <p><strong>Lifetime stats:</strong> See total sessions, quizzes taken, and overall accuracy.</p>
-            </div>
+        <div class="upload-section">
+          <h2>💡 Pro Tips</h2>
+          <div style="text-align: left; max-width: 600px; margin: 0 auto;">
+            <p>
+              • <strong>Start with flashcards</strong> to learn the material,
+              then test with quizzes
+            </p>
+            <p>
+              • <strong>Use combination mode</strong> for realistic mixed
+              question types
+            </p>
+            <p>
+              • <strong>Use timed quizzes</strong> to simulate exam conditions
+            </p>
+            <p>
+              • <strong>Review your analytics</strong> to see which topics need
+              more work
+            </p>
+            <p>
+              • <strong>Mix difficulty levels</strong> in your JSON file (easy,
+              medium, hard, expert)
+            </p>
+            <p>
+              • <strong>Keep sessions short</strong> - 10-15 cards work better
+              than 50+ at once
+            </p>
+          </div>
+        </div>
 
-            <div class="stats">
-                <h2>⚙️ Step 5: Customize Settings</h2>
-                <p><strong>Passing threshold:</strong> Set the minimum score needed to "pass" a session (default: 70%).</p>
-                <p><strong>Card randomization:</strong> Choose whether cards appear in random order or sequential.</p>
-                <p><strong>Time per question:</strong> Adjust how much time you get for each question in timed quizzes.</p>
-            </div>
+        <div class="stats">
+          <h2>🤖 AI Assistant Tips</h2>
+          <p>
+            <strong>Convert PDFs to flashcards:</strong> Got study material in
+            PDF format? Use this prompt with ChatGPT, Claude, or any AI
+            assistant:
+          </p>
 
-            <div class="upload-section">
-                <h2>💡 Pro Tips</h2>
-                <div style="text-align: left; max-width: 600px; margin: 0 auto;">
-                    <p>• <strong>Start with flashcards</strong> to learn the material, then test with quizzes</p>
-                    <p>• <strong>Use combination mode</strong> for realistic mixed question types</p>
-                    <p>• <strong>Use timed quizzes</strong> to simulate exam conditions</p>
-                    <p>• <strong>Review your analytics</strong> to see which topics need more work</p>
-                    <p>• <strong>Mix difficulty levels</strong> in your JSON file (easy, medium, hard, expert)</p>
-                    <p>• <strong>Keep sessions short</strong> - 10-15 cards work better than 50+ at once</p>
-                </div>
+          <div class="json-format">
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;"
+            >
+              <h3>📋 Copy this prompt:</h3>
+              <button
+                class="btn btn-secondary"
+                id="copyPromptBtn"
+                style="padding: 8px 16px; font-size: 14px;"
+              >
+                📋 Copy Prompt
+              </button>
             </div>
-
-            <div class="stats">
-                <h2>🤖 AI Assistant Tips</h2>
-                <p><strong>Convert PDFs to flashcards:</strong> Got study material in PDF format? Use this prompt with ChatGPT, Claude, or any AI assistant:</p>
-                
-                <div class="json-format">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h3>📋 Copy this prompt:</h3>
-                        <button class="btn btn-secondary" id="copyPromptBtn" style="padding: 8px 16px; font-size: 14px;">📋 Copy Prompt</button>
-                    </div>
-                    <pre id="aiPromptText" style="white-space: pre-wrap; font-size: 12px;">Please convert the following PDF content into a JSON flashcard format for my study app.
+            <pre
+              id="aiPromptText"
+              style="white-space: pre-wrap; font-size: 12px;"
+            >
+Please convert the following PDF content into a JSON flashcard format for my study app.
 
 CRITICAL REQUIREMENTS:
 • Randomize correct answer positions - Do NOT put all correct answers in position 0. Distribute them randomly across positions 0, 1, 2, and 3.
@@ -440,88 +645,146 @@ FINAL CHECKLIST:
 ✓ Direct explanations that teach concepts, not reference source material
 
 PDF Content:
-[Paste your PDF text here]</pre>
-                </div>
-                
-                <p><strong>Pro tips:</strong></p>
-                <div style="text-align: left; max-width: 600px; margin: 0 auto;">
-                    <p>• Copy small sections (1-2 pages) at a time for better results</p>
-                    <p>• This improved prompt includes specific percentages and distribution guidelines</p>
-                    <p>• Uses a final checklist to ensure AI follows all requirements</p>
-                    <p>• If AI still clusters answers in one position, say: "Follow the 25% distribution rule for answer positions"</p>
-                    <p>• For more variety, add: "Include more calculation and scenario-based questions"</p>
-                </div>
-            </div>
+[Paste your PDF text here]</pre
+            >
+          </div>
+
+          <p><strong>Pro tips:</strong></p>
+          <div style="text-align: left; max-width: 600px; margin: 0 auto;">
+            <p>
+              • Copy small sections (1-2 pages) at a time for better results
+            </p>
+            <p>
+              • This improved prompt includes specific percentages and
+              distribution guidelines
+            </p>
+            <p>
+              • Uses a final checklist to ensure AI follows all requirements
+            </p>
+            <p>
+              • If AI still clusters answers in one position, say: "Follow the
+              25% distribution rule for answer positions"
+            </p>
+            <p>
+              • For more variety, add: "Include more calculation and
+              scenario-based questions"
+            </p>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Floating Timer Component -->
     <div id="floatingTimer" class="floating-timer" style="display: none;">
-        <div class="timer-circle">
-            <svg class="timer-svg" viewBox="0 0 100 100">
-                <defs>
-                    <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#00F5FF;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#FF6B9D;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
-                <circle class="timer-progress" cx="50" cy="50" r="45" id="timerCircle"></circle>
-            </svg>
-            <div class="timer-content">
-                <div class="timer-time" id="floatingTimeLeft">00:00</div>
-                <div class="timer-label">Left</div>
-                <button class="timer-end-btn" id="endQuizBtn" title="End Quiz Early">✕</button>
-            </div>
+      <div class="timer-circle">
+        <svg class="timer-svg" viewBox="0 0 100 100">
+          <defs>
+            <linearGradient
+              id="timerGradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="100%"
+            >
+              <stop offset="0%" style="stop-color:#00F5FF;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#FF6B9D;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+          <circle
+            class="timer-progress"
+            cx="50"
+            cy="50"
+            r="45"
+            id="timerCircle"
+          ></circle>
+        </svg>
+        <div class="timer-content">
+          <div class="timer-time" id="floatingTimeLeft">00:00</div>
+          <div class="timer-label">Left</div>
+          <button class="timer-end-btn" id="endQuizBtn" title="End Quiz Early">
+            ✕
+          </button>
         </div>
+      </div>
     </div>
-<footer class="ai-footer">
-    <div class="footer-container">
+    <footer class="ai-footer">
+      <div class="footer-container">
         <!-- AI Responsibility Warning -->
         <div class="warning-section">
-            <div class="warning-title">
-                <span class="warning-icon">⚠️</span>
-                Responsible AI Use for Studying
-            </div>
-            <div class="warning-content">
-                <p><strong>Important:</strong> This tool uses AI to generate study materials. While designed to be helpful, please use responsibly:</p>
-                <ul class="warning-list">
-                    <li><span class="highlight">Always verify information</span> - AI can make mistakes or provide outdated information</li>
-                    <li><span class="highlight">Cross-reference with authoritative sources</span> - Use textbooks, academic papers, and verified materials</li>
-                    <li><span class="highlight">Don't rely solely on AI</span> - Use this as a supplement to, not replacement for, proper studying</li>
-                    <li><span class="highlight">Academic integrity matters</span> - Follow your institution's policies on AI assistance</li>
-                    <li><span class="highlight">Think critically</span> - Question and evaluate the generated content</li>
-                </ul>
-                <p><em>Remember: AI is a tool to enhance learning, not replace critical thinking and proper academic research.</em></p>
-            </div>
+          <div class="warning-title">
+            <span class="warning-icon">⚠️</span>
+            Responsible AI Use for Studying
+          </div>
+          <div class="warning-content">
+            <p>
+              <strong>Important:</strong> This tool uses AI to generate study
+              materials. While designed to be helpful, please use responsibly:
+            </p>
+            <ul class="warning-list">
+              <li>
+                <span class="highlight">Always verify information</span> - AI
+                can make mistakes or provide outdated information
+              </li>
+              <li>
+                <span class="highlight"
+                  >Cross-reference with authoritative sources</span
+                >
+                - Use textbooks, academic papers, and verified materials
+              </li>
+              <li>
+                <span class="highlight">Don't rely solely on AI</span> - Use
+                this as a supplement to, not replacement for, proper studying
+              </li>
+              <li>
+                <span class="highlight">Academic integrity matters</span> -
+                Follow your institution's policies on AI assistance
+              </li>
+              <li>
+                <span class="highlight">Think critically</span> - Question and
+                evaluate the generated content
+              </li>
+            </ul>
+            <p>
+              <em
+                >Remember: AI is a tool to enhance learning, not replace
+                critical thinking and proper academic research.</em
+              >
+            </p>
+          </div>
         </div>
-
-```
-    <!-- Creator and Contact Info -->
-    <div class="creator-section">
-        <div class="creator-info">
+        <!-- Creator and Contact Info -->
+        <div class="creator-section">
+          <div class="creator-info">
             <h3>Created by Saurabh Mankar</h3>
-            <p>Passionate about making learning more accessible through technology.</p>
-            <p><strong>Want to contribute or suggest improvements?</strong> I'd love to hear from you!</p>
-        </div>
-        <div class="contact-links">
+            <p>
+              Passionate about making learning more accessible through
+              technology.
+            </p>
+            <p>
+              <strong>Want to contribute or suggest improvements?</strong> I'd
+              love to hear from you!
+            </p>
+          </div>
+          <div class="contact-links">
             <!-- UPDATE THESE LINKS WITH YOUR ACTUAL CONTACT INFO -->
             <a href="mailto:mankar.saurabh@example.com">📧 Email</a>
             <a href="https://github.com/mSaurabh" target="_blank">💻 GitHub</a>
+          </div>
         </div>
-    </div>
 
-    <!-- Legal Disclaimer -->
-    <div class="disclaimer">
-        <p>© 2025 Saurabh Mankar. This tool is provided as-is for educational purposes. 
-        Users are responsible for verifying accuracy and following their institution's academic policies.</p>
-    </div>
-</div>
-```
-
-</footer>
+        <!-- Legal Disclaimer -->
+        <div class="disclaimer">
+          <p>
+            © 2025 Saurabh Mankar. This tool is provided as-is for educational
+            purposes. Users are responsible for verifying accuracy and following
+            their institution's academic policies.
+          </p>
+        </div>
+      </div>
+    </footer>
     <!-- Scripts -->
     <script src="app.js"></script>
-</body>
+  </body>
 </html>
